@@ -1,0 +1,320 @@
+architecture_information:
+  name: powerpc
+
+instruction:
+
+# Branch instructions
+  - encoding: [ '18@0', 'LI@6', 'AA@30', 'LK@31' ]
+    form: i-form
+    decoder: |
+
+      insn.mnem.set("b");
+
+      if field("LK") {
+        insn.mnem.add_suffix("l");
+        insn.sub_type |= insn_call;
+      }
+      else
+        insn.sub_type |= insn_jump;
+
+      var(off, prop(address_bitsize));
+      off = sx(field("LI") << 2, off.bitsize);
+      if field("AA") {
+        insn.mnem.add_suffix("a");
+        insn.add_oprd(off);
+      }
+      else
+        insn.add_oprd(insn.addr + off);
+
+    semantic: |
+
+      if field("LK")
+        id("lr") = insn.addr + 4;
+
+      id("pc") = insn.get_oprd(0);
+
+  - encoding: [ '16@0', 'BO@6', 'BI@11', 'BD@16', 'AA@30', 'LK@31' ]
+    form: b-form
+    decoder: |
+
+      insn.mnem.set("bc");
+      not_implemented();
+
+    semantic: |
+
+      not_implemented();
+
+
+  - encoding: [ '19@0', 'BO@6', 'BI@11', 'ignored@16', 'BH@19', '16@21', 'LK@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("bclr");
+      not_implemented();
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BO@6', 'BI@11', 'ignored@16', 'BH@19', '528@21', 'LK@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("bcctr");
+      not_implemented();
+
+    semantic: |
+
+      not_implemented();
+
+# Condition Register Instructions
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '257@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crand");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '225@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crnand");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '449@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("cror");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '193@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crxor");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '33@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crnor");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '289@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("creqv");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '129@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crandc");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BT@6', 'BA@11', 'BB@16', '417@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("crorc");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '19@0', 'BF@6', 'ignored@9', 'BFA@11', 'ignored@14', 'ignored@16', '0@21', 'ignored@31' ]
+    form: xl-form
+    decoder: |
+
+      insn.mnem.set("mcrf");
+
+    semantic: |
+
+      not_implemented();
+
+# Fixed-Point Facility Instructions
+  - encoding: [ '34@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lbz");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '87@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lbzx");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '35@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lbzu");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '119@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lbzux");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '40@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lhz");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '279@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lhzx");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '41@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lhzu");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '331@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lhzux");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '42@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lha");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '343@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lhax");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '43@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lhau");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '375@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lhaux");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '32@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lwz");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '23@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lwzx");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '33@0', 'RT@6', 'RA@11', 'D@16' ]
+    form: d-form
+    decoder: |
+
+      insn.mnem.set("lwzu");
+
+    semantic: |
+
+      not_implemented();
+
+  - encoding: [ '31@0', 'RT@6', 'RA@11', 'RB@16', '55@21', 'ignored@31' ]
+    form: x-form
+    decoder: |
+
+      insn.mnem.set("lwzux");
+
+    semantic: |
+
+      not_implemented();
