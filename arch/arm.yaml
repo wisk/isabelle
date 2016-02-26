@@ -11,7 +11,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -111,7 +111,7 @@ decoder: |
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *add3
 
@@ -125,7 +125,7 @@ decoder: |
   insn.mnem.set("add");
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rdn", field("Rdn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *add3
 
@@ -143,7 +143,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *add3
 
@@ -158,7 +158,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -273,7 +273,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *add3
 
@@ -288,7 +288,7 @@ decoder: |
   insn.add_attr("support-it-block");
   not_implemented("operand: SP");
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *add3
 
@@ -306,7 +306,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -321,7 +321,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -488,7 +488,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -588,7 +588,7 @@ decoder: |
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -606,7 +606,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -623,7 +623,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -818,7 +818,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -915,7 +915,7 @@ format: 'BKPT #<imm>'
 decoder: |
 
   insn.mnem.set("bkpt");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -927,7 +927,7 @@ format: 'BKPT #<imm>'
 decoder: |
 
   insn.mnem.set("bkpt");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -1297,7 +1297,7 @@ decoder: |
   insn.mnem.set("cmp");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -1312,7 +1312,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -1413,7 +1413,7 @@ decoder: |
 
   insn.mnem.set("dbg");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1426,7 +1426,7 @@ decoder: |
 
   insn.mnem.set("dbg");
   insn.set_cond(field("cond"));
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1439,7 +1439,7 @@ decoder: |
 
   insn.mnem.set("dmb");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1451,7 +1451,7 @@ format: 'DMB #<option>'
 decoder: |
 
   insn.mnem.set("dmb");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1464,7 +1464,7 @@ decoder: |
 
   insn.mnem.set("dsb");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1476,7 +1476,7 @@ format: 'DSB #<option>'
 decoder: |
 
   insn.mnem.set("dsb");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1493,7 +1493,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -1591,7 +1591,7 @@ decoder: |
 
   insn.mnem.set("isb");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -1603,7 +1603,7 @@ format: 'ISB #<option>'
 decoder: |
 
   insn.mnem.set("isb");
-  insn.add_oprd(mk_bv(field("option")));
+  insn.add_oprd(bv(field("option", 32)));
 
 semantic: []
 
@@ -2194,7 +2194,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rt", field("Rt")));
   not_implemented("operand: [<Rn>]");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3078,7 +3078,7 @@ decoder: |
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3096,7 +3096,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3113,7 +3113,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3380,7 +3380,7 @@ decoder: |
   insn.mnem.set("mov");
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *mov
 
@@ -3397,7 +3397,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *mov
 
@@ -3411,7 +3411,7 @@ decoder: |
   insn.mnem.set("movw");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *movw
 
@@ -3441,7 +3441,7 @@ decoder: |
   insn.mnem.set("movw");
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *movw
 
@@ -3516,7 +3516,7 @@ decoder: |
   insn.mnem.set("movt");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *movt
 
@@ -3530,7 +3530,7 @@ decoder: |
   insn.mnem.set("movt");
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: *movt
 
@@ -3800,7 +3800,7 @@ decoder: |
     insn.mnem.add_suffix("s")
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3935,7 +3935,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -3969,7 +3969,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -4798,7 +4798,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -4815,7 +4815,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rm", field("Rm")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -4929,7 +4929,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -5159,7 +5159,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -6184,7 +6184,7 @@ decoder: |
   insn.mnem.set("ssat");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   not_implemented("operand: <Rn>{,<shift>}");
 
 semantic: []
@@ -6199,7 +6199,7 @@ decoder: |
   insn.mnem.set("ssat");
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   not_implemented("operand: <Rn>{,<shift>}");
 
 semantic: []
@@ -6214,7 +6214,7 @@ decoder: |
   insn.mnem.set("ssat16");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   insn.add_oprd(id("Rn", field("Rn")));
 
 semantic: []
@@ -6229,7 +6229,7 @@ decoder: |
   insn.mnem.set("ssat16");
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rd", field("Rd")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   insn.add_oprd(id("Rn", field("Rn")));
 
 semantic: []
@@ -6759,7 +6759,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.add_oprd(id("Rt", field("Rt")));
   not_implemented("operand: [<Rn>]");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7163,7 +7163,7 @@ decoder: |
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7177,7 +7177,7 @@ decoder: |
   insn.mnem.set("sub");
   insn.mnem.add_suffix(s);
   insn.add_oprd(id("Rdn", field("Rdn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7195,7 +7195,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7210,7 +7210,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7311,7 +7311,7 @@ decoder: |
   insn.add_attr("support-it-block");
   not_implemented("operand: SP");
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7329,7 +7329,7 @@ decoder: |
   insn.mnem.add_suffix(".w");
   insn.add_oprd(id("Rd", field("Rd")));
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7344,7 +7344,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rd", field("Rd")));
   not_implemented("operand: SP");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7408,7 +7408,7 @@ decoder: |
 
   insn.mnem.set("svc");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7421,7 +7421,7 @@ decoder: |
 
   insn.mnem.set("svc");
   insn.set_cond(field("cond"));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7671,7 +7671,7 @@ decoder: |
   insn.mnem.set("teq");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -7743,7 +7743,7 @@ decoder: |
   insn.mnem.set("tst");
   insn.add_attr("support-it-block");
   insn.add_oprd(id("Rn", field("Rn")));
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -9462,7 +9462,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Qd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -9487,7 +9487,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Dd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -10702,7 +10702,7 @@ decoder: |
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qn>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -10719,7 +10719,7 @@ decoder: |
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dn>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -11375,7 +11375,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Qd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -11400,7 +11400,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Dd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -11415,7 +11415,7 @@ decoder: |
   insn.add_attr("support-it-block");
   insn.mnem.add_suffix(".F64");
   not_implemented("operand: <Dd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -11430,7 +11430,7 @@ decoder: |
   insn.set_cond(field("cond"));
   insn.mnem.add_suffix(".F32");
   not_implemented("operand: <Sd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -12290,7 +12290,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Qd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -12315,7 +12315,7 @@ decoder: |
   if (field("size") == 0b10)
     insn.mnem.add_suffix("32");
   not_implemented("operand: <Dd>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13375,7 +13375,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13396,7 +13396,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13454,7 +13454,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13474,7 +13474,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13495,7 +13495,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13516,7 +13516,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13811,7 +13811,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13830,7 +13830,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13848,7 +13848,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13866,7 +13866,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13969,7 +13969,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -13988,7 +13988,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14058,7 +14058,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14076,7 +14076,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14131,7 +14131,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14150,7 +14150,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14169,7 +14169,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14188,7 +14188,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14207,7 +14207,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14226,7 +14226,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14244,7 +14244,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14262,7 +14262,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14279,7 +14279,7 @@ decoder: |
   not_implemented("field: <size>");
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14296,7 +14296,7 @@ decoder: |
   not_implemented("field: <size>");
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14345,7 +14345,7 @@ decoder: |
 
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14364,7 +14364,7 @@ decoder: |
 
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14381,7 +14381,7 @@ decoder: |
   not_implemented("field: <size>");
   not_implemented("operand: <Qd>");
   not_implemented("operand: <Qm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -14398,7 +14398,7 @@ decoder: |
   not_implemented("field: <size>");
   not_implemented("operand: <Dd>");
   not_implemented("operand: <Dm>");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
 
 semantic: []
 
@@ -15247,7 +15247,7 @@ decoder: |
 
   insn.mnem.set("hblp");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   not_implemented("operand: #<handler5>");
 
 semantic: []
@@ -15261,7 +15261,7 @@ decoder: |
 
   insn.mnem.set("hbp");
   insn.add_attr("support-it-block");
-  insn.add_oprd(mk_bv(field("i")));
+  insn.add_oprd(bv(field("i"), 32));
   not_implemented("operand: #<handler5>");
 
 semantic: []
