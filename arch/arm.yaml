@@ -9,8 +9,8 @@ instruction:
     format: 'ADC{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("adc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -25,8 +25,8 @@ instruction:
     format: 'ADC{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("adc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -54,8 +54,8 @@ instruction:
     format: 'ADC{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("adc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -71,8 +71,8 @@ instruction:
     format: 'ADC{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("adc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -87,8 +87,8 @@ instruction:
     format: 'ADC{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("adc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -130,8 +130,8 @@ instruction:
     format: 'ADD{S}<c>.W <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -161,8 +161,8 @@ instruction:
     format: 'ADD{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -204,8 +204,8 @@ instruction:
     format: 'ADD{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -221,8 +221,8 @@ instruction:
     format: 'ADD{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -237,8 +237,8 @@ instruction:
     format: 'ADD{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -281,8 +281,8 @@ instruction:
     format: 'ADD{S}<c>.W <Rd>, SP, #<imm>'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -312,8 +312,8 @@ instruction:
     format: 'ADD{S}<c> <Rd>, SP, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id("sp"));
@@ -353,8 +353,8 @@ instruction:
     format: 'ADD{S}<c>.W <Rd>, SP, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -370,8 +370,8 @@ instruction:
     format: 'ADD{S}<c> <Rd>, SP, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("add");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id("sp"));
@@ -452,8 +452,8 @@ instruction:
     format: 'AND{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("and");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -468,8 +468,8 @@ instruction:
     format: 'AND{S}<c> <Rd>, <Rn>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("and");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -497,8 +497,8 @@ instruction:
     format: 'AND{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("and");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -514,8 +514,8 @@ instruction:
     format: 'AND{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("and");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -530,8 +530,8 @@ instruction:
     format: 'AND{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("and");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -560,8 +560,8 @@ instruction:
     format: 'ASR{S}<c>.W <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("asr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -577,8 +577,8 @@ instruction:
     format: 'ASR{S}<c> <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("asr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -606,8 +606,8 @@ instruction:
     format: 'ASR{S}<c>.W <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("asr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -623,8 +623,8 @@ instruction:
     format: 'ASR{S}<c> <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("asr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -759,8 +759,8 @@ instruction:
     format: 'BIC{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("bic");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -775,8 +775,8 @@ instruction:
     format: 'BIC{S}<c> <Rd>, <Rn>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("bic");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -804,8 +804,8 @@ instruction:
     format: 'BIC{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("bic");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -821,8 +821,8 @@ instruction:
     format: 'BIC{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("bic");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -837,8 +837,8 @@ instruction:
     format: 'BIC{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("bic");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -1381,8 +1381,8 @@ instruction:
     format: 'EOR{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("eor");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -1397,8 +1397,8 @@ instruction:
     format: 'EOR{S}<c> <Rd>, <Rn>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("eor");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -1426,8 +1426,8 @@ instruction:
     format: 'EOR{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("eor");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -1443,8 +1443,8 @@ instruction:
     format: 'EOR{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("eor");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -1459,8 +1459,8 @@ instruction:
     format: 'EOR{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("eor");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -1518,7 +1518,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -1557,7 +1557,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -1759,7 +1759,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -1787,7 +1787,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -1871,7 +1871,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -1916,7 +1916,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -1931,7 +1931,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -2001,7 +2001,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -2091,7 +2091,7 @@ instruction:
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -2171,7 +2171,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -2278,7 +2278,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -2293,7 +2293,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -2363,7 +2363,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -2525,7 +2525,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -2687,7 +2687,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -2833,8 +2833,8 @@ instruction:
     format: 'LSL{S}<c>.W <Rd>, <Rm>, #<imm5>'
     decoder: |
       insn.mnem.set("lsl");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -2850,8 +2850,8 @@ instruction:
     format: 'LSL{S}<c> <Rd>, <Rm>, #<imm5>'
     decoder: |
       insn.mnem.set("lsl");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -2879,8 +2879,8 @@ instruction:
     format: 'LSL{S}<c>.W <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("lsl");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -2896,8 +2896,8 @@ instruction:
     format: 'LSL{S}<c> <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("lsl");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -2926,8 +2926,8 @@ instruction:
     format: 'LSR{S}<c>.W <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("lsr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -2943,8 +2943,8 @@ instruction:
     format: 'LSR{S}<c> <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("lsr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -2972,8 +2972,8 @@ instruction:
     format: 'LSR{S}<c>.W <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("lsr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -2989,8 +2989,8 @@ instruction:
     format: 'LSR{S}<c> <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("lsr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3148,8 +3148,8 @@ instruction:
     format: 'MLA{S}<c> <Rd>, <Rn>, <Rm>, <Ra>'
     decoder: |
       insn.mnem.set("mla");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3210,8 +3210,8 @@ instruction:
     format: 'MOV{S}<c>.W <Rd>, #<imm>'
     decoder: |
       insn.mnem.set("mov");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -3239,8 +3239,8 @@ instruction:
     format: 'MOV{S}<c> <Rd>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("mov");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       not_implemented("operand #<arm_expand_imm_c>");
@@ -3293,8 +3293,8 @@ instruction:
     format: 'MOV{S}<c>.W <Rd>, <Rm>'
     decoder: |
       insn.mnem.set("mov");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -3309,8 +3309,8 @@ instruction:
     format: 'MOV{S}<c> <Rd>, <Rm>'
     decoder: |
       insn.mnem.set("mov");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -3572,8 +3572,8 @@ instruction:
     format: 'MUL{S}<c> <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("mul");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3588,8 +3588,8 @@ instruction:
     format: 'MVN{S}<c> <Rd>, #<imm>'
     decoder: |
       insn.mnem.set("mvn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(int(32, field("imm")));
@@ -3603,8 +3603,8 @@ instruction:
     format: 'MVN{S}<c> <Rd>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("mvn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       not_implemented("operand #<arm_expand_imm_c>");
@@ -3631,8 +3631,8 @@ instruction:
     format: 'MVN{S}<c>.W <Rd>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("mvn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -3647,8 +3647,8 @@ instruction:
     format: 'MVN{S}<c> <Rd>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("mvn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(arm.DecodeImmShiftWithSource(field("Rm"), field("type"), field("imm")));
@@ -3662,8 +3662,8 @@ instruction:
     format: 'MVN{S}<c> <Rd>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("mvn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(arm.DecodeRegWithSources(field("Rm"), field("type"), field("Rs")));
@@ -3711,8 +3711,8 @@ instruction:
     format: 'ORN{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("orn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3727,8 +3727,8 @@ instruction:
     format: 'ORN{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("orn");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3743,8 +3743,8 @@ instruction:
     format: 'ORR{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("orr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3759,8 +3759,8 @@ instruction:
     format: 'ORR{S}<c> <Rd>, <Rn>, #<arm_expand_imm_c>'
     decoder: |
       insn.mnem.set("orr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3788,8 +3788,8 @@ instruction:
     format: 'ORR{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("orr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -3805,8 +3805,8 @@ instruction:
     format: 'ORR{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("orr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -3821,8 +3821,8 @@ instruction:
     format: 'ORR{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("orr");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4513,8 +4513,8 @@ instruction:
     format: 'ROR{S}<c> <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("ror");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -4529,8 +4529,8 @@ instruction:
     format: 'ROR{S}<c> <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("ror");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -4558,8 +4558,8 @@ instruction:
     format: 'ROR{S}<c>.W <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("ror");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -4575,8 +4575,8 @@ instruction:
     format: 'ROR{S}<c> <Rd>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("ror");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4591,8 +4591,8 @@ instruction:
     format: 'RRX{S}<c> <Rd>, <Rm>'
     decoder: |
       insn.mnem.set("rrx");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -4606,8 +4606,8 @@ instruction:
     format: 'RRX{S}<c> <Rd>, <Rm>'
     decoder: |
       insn.mnem.set("rrx");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rm"))));
@@ -4635,8 +4635,8 @@ instruction:
     format: 'RSB{S}<c>.W <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("rsb");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -4652,8 +4652,8 @@ instruction:
     format: 'RSB{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("rsb");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4668,8 +4668,8 @@ instruction:
     format: 'RSB{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("rsb");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4684,8 +4684,8 @@ instruction:
     format: 'RSB{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("rsb");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4700,8 +4700,8 @@ instruction:
     format: 'RSB{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("rsb");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4716,8 +4716,8 @@ instruction:
     format: 'RSC{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("rsc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4732,8 +4732,8 @@ instruction:
     format: 'RSC{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("rsc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4748,8 +4748,8 @@ instruction:
     format: 'RSC{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("rsc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4848,8 +4848,8 @@ instruction:
     format: 'SBC{S}<c> <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("sbc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4864,8 +4864,8 @@ instruction:
     format: 'SBC{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("sbc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4893,8 +4893,8 @@ instruction:
     format: 'SBC{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sbc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -4910,8 +4910,8 @@ instruction:
     format: 'SBC{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sbc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -4926,8 +4926,8 @@ instruction:
     format: 'SBC{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("sbc");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -5333,8 +5333,8 @@ instruction:
     format: 'SMLAL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("smlal");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       not_implemented("operand <RdLo>");
       not_implemented("operand <RdHi>");
@@ -5729,8 +5729,8 @@ instruction:
     format: 'SMULL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("smull");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       not_implemented("operand <RdLo>");
       not_implemented("operand <RdHi>");
@@ -5962,7 +5962,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6001,7 +6001,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6140,7 +6140,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -6213,7 +6213,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -6317,7 +6317,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -6407,7 +6407,7 @@ instruction:
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field('imm8') << 2)
+      off = int(32, field('imm8') << 2);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6460,7 +6460,7 @@ instruction:
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(32,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -6574,7 +6574,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -6589,7 +6589,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm")));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
 
     semantic: []
 
@@ -6633,7 +6633,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + id(arm.Register("GPR32", field("<Rm>")))));
 
     semantic: []
 
@@ -6793,8 +6793,8 @@ instruction:
     format: 'SUB{S}<c>.W <Rd>, <Rn>, #<imm>'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -6824,8 +6824,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, <Rn>, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -6854,8 +6854,8 @@ instruction:
     format: 'SUB{S}<c>.W <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -6871,8 +6871,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, <Rn>, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -6887,8 +6887,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, <Rn>, <Rm>, <type> <Rs>'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
@@ -6917,8 +6917,8 @@ instruction:
     format: 'SUB{S}<c>.W <Rd>, SP, #<imm>'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
@@ -6948,8 +6948,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, SP, #<arm_expand_imm>'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id("sp"));
@@ -6964,8 +6964,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, SP, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id("sp"));
@@ -6980,8 +6980,8 @@ instruction:
     format: 'SUB{S}<c> <Rd>, SP, <Rm>{,<shift>}'
     decoder: |
       insn.mnem.set("sub");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id("sp"));
@@ -7725,8 +7725,8 @@ instruction:
     format: 'UMLAL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("umlal");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       not_implemented("operand <RdLo>");
       not_implemented("operand <RdHi>");
@@ -7757,8 +7757,8 @@ instruction:
     format: 'UMULL{S}<c> <RdLo>, <RdHi>, <Rn>, <Rm>'
     decoder: |
       insn.mnem.set("umull");
-      if field("S")
-        insn.mnem.add_suffix("s")
+      if (field("S"))
+        insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       not_implemented("operand <RdLo>");
       not_implemented("operand <RdHi>");
