@@ -186,13 +186,14 @@ class ArmArchConvertion(ArchConvertion):
 
     def _ARM_GenerateInstruction(self, insn):
         print insn['format']
-        parsed_decoder = parse(insn['decoder'])
-        if not parsed_decoder:
-            print insn['decoder']
-            aa
-        print format_parsed_code(parsed_decoder)
+        ast = parse(insn['decoder'])
+        if not ast:
+            raise Exception('failed to parse decoder for: %s' % insn['format'])
+        print format_parsed_code(ast)
 
-        res = 'return false;\n'
+        res = compile_to_cpp(ast)
+        if not res:
+            raise Exception('failed to compile AST for: %s' % insn['format'])
 
         return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(res)
 

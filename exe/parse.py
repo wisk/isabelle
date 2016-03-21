@@ -48,18 +48,18 @@ _binary_operators = (_add | _sub | _mul | _div | _mod | _and | _or | _xor | _lsl
 _label       = Word(alphas + '_', bodyChars=alphanums + '_')
 _label       = Group(_label + ZeroOrMore(_dot + _label)).setResultsName('label')
 
-_binary_literal      = '0b' + Word('01').setResultsName('bin')
-_decimal_literal     = Word( nums ).setResultsName('dec')
-_hexadecimal_literal = '0x' + Word('0123456789ABCDEFabcdef').setResultsName('hex')
-_string_literal      = quotedString.setResultsName('str')
-_float_literal       = _decimal_literal + _dot + _decimal_literal
+_binary_literal      = '0b' + Word('01').setResultsName('lit_bin')
+_decimal_literal     = Word( nums ).setResultsName('lit_dec')
+_hexadecimal_literal = '0x' + Word('0123456789ABCDEFabcdef').setResultsName('lit_hex')
+_string_literal      = quotedString.setResultsName('lit_str')
+_float_literal       = (_decimal_literal + _dot + _decimal_literal).setResultsName('lit_flt')
 _literal             = (_float_literal | _binary_literal | _hexadecimal_literal | _decimal_literal | _string_literal)
 
 _value = Forward()
 _statment = Forward()
 _predicat = Forward()
 
-_assignment_statement = _label + _assign + _value + _semicolon
+_assignment_statement = Group(_label.setResultsName('src') + _assign + _value.setResultsName('dst') + _semicolon).setResultsName('assign')
 
 _statments = _open_bracket + OneOrMore(_statment) + _close_bracket
 
@@ -69,26 +69,26 @@ _function_statment = Group(_function_name + _open_paren + _function_parameters +
 
 _else_statment =\
     Keyword('else') +\
-    (_statment | _statments)
+    (_statment | _statments).setResultsName('else_body')
 
 _if_statment = Group(\
-    Keyword('if') + _predicat +\
-        (_statment | _statments) +\
+    Keyword('if') + _predicat.setResultsName('if_predicat') +\
+        (_statment | _statments).setResultsName('if_body') +\
     Optional(_else_statment)\
 ).setResultsName('cond_if')
 
 _when_statment = Group(\
-    Keyword('when') + _open_paren + _value + _close_paren +\
-        (_statment | _statments)).setResultsName('when')
+    Keyword('when') + _open_paren + _value.setResultsName('when_value') + _close_paren +\
+        (_statment | _statments).setResultsName('when_body')).setResultsName('when')
 _case_statment = Group(\
-    Keyword('case') + _predicat +\
+    Keyword('case') + _predicat.setResultsName('case_predicat') +\
         _open_bracket +\
-            OneOrMore(_when_statment) +\
+            Group(OneOrMore(_when_statment)).setResultsName('case_when') +\
         _close_bracket\
-).setResultsName('case')
+).setResultsName('cond_case')
 
 _paren_value = _open_paren + _value + _close_paren
-_value << Optional(_unary_operator) + (_function_statment | _label | _literal) + Optional(_binary_operators + (_value | _paren_value))
+_value << Optional(_unary_operator).setResultsName('op_un') + (_function_statment | _label | _literal) + Optional(_binary_operators + (_value | _paren_value)).setResultsName('op_bin')
 _statment << _function_statment + _semicolon
 _predicat << (_open_paren + _value + _close_paren)
 
@@ -123,6 +123,48 @@ def parse(s):
             print e.line
             print ' ' * (e.column - 1) + '^'
         print e
+
+class AST:
+    def __init__(self):
+        pass
+
+    def __del__(self):
+        pass
+
+    def visit(self, node):
+        pass
+
+    def visit_assignment(self, node):
+        dst = self.visit(node.dst)
+        src = self.visit(node.src)
+
+        return '%s = %s;' % (dst, src)
+
+    def visit_function(self, node):
+        func_name = self.visit(node.func_name)
+        func_param = [ self.visit(x) for x in node.func_param ]
+
+        return '%s(%s)' % (func_name, ', '.join(func_param))
+
+    def visit_if(self, node):
+        if_predicat = self.visit(node.if_predicat)
+        if_body = self.visit(node.if_body)
+
+        if not hasattr(node, 'else_body'):
+            return 'if (%s)\n{%s\n}' % (if_predicat, if_body)
+
+        else_body = self.visit(node.else_body)
+        return 'if (%s)\n{%s\n}\nelse\n{\n%s\n}' % (if_predicat, if_body, else_body)
+
+    def visit_case(self, node):
+        case_cond = self.visit(node.case_cond)
+        case_when = [ self.visit(x) for x in node.case_when ]
+
+        # TODO handle it with switch
+        return 'return false; /* handle case / when */'
+
+def compile_to_cpp(ast):
+    return 'return false;'
 
 test0 = '''\
 insn.mnem.set("vabal");
