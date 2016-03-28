@@ -1,5 +1,8 @@
 #!/usr/bin/python2
 
+# ref: https://stackoverflow.com/questions/23879784/parse-mathematical-expressions-with-pyparsing
+# ref: http://qiita.com/knoguchi/items/6f9b7383b7252a9ebdad
+
 from pyparsing import *
 from pprint import pprint
 
@@ -32,7 +35,7 @@ _comparison_operators = _equal | _different | _superior_or_equal | _inferior_or_
 # unary operator
 _not    = Literal('~').setResultsName('not')
 _negate = Literal('-').setResultsName('negate')
-_unary_operator = (_not | _negate)
+_unary_operator = Group(_not | _negate).setResultsName('op_un')
 
 
 # binary operator
@@ -53,7 +56,7 @@ _binary_operators = (_add | _sub | _mul | _div | _mod | _and | _or | _xor | _lsl
 
 # label
 _label       = Word(alphas + '_', bodyChars=alphanums + '_')
-_label       = Group(_label + ZeroOrMore(_dot + _label)).setResultsName('label')
+_label       = Group(_label + ZeroOrMore(_dot + _label)).setResultsName('label').setName('label')
 
 # literal
 _binary_literal      = Combine(Literal('0b') + Word('01')).setResultsName('lit_bin')
@@ -61,31 +64,45 @@ _decimal_literal     = Word( nums ).setResultsName('lit_dec')
 _hexadecimal_literal = Combine(Literal('0x') + Word('0123456789ABCDEFabcdef')).setResultsName('lit_hex')
 _string_literal      = quotedString.setResultsName('lit_str')
 _float_literal       = Combine(Word( nums ).setResultsName('decimal') + _dot + Word( nums ).setResultsName('fractional')).setResultsName('lit_flt')
-_literal             = Group(_float_literal | _binary_literal | _hexadecimal_literal | _decimal_literal | _string_literal)
+_literal             = (_float_literal | _binary_literal | _hexadecimal_literal | _decimal_literal | _string_literal).setName('literal')
 
 _value = Forward()
 _statment = Forward()
 _predicat = Forward()
 
-_assignment_statement = Group(_label.setResultsName('dst') + _assign + _value.setResultsName('src') + _semicolon).setResultsName('assign')
+UNARY,BINARY=1,2
+_expression = (infixNotation(\
+        _value,\
+        [\
+            (_not | _negate, UNARY, opAssoc.RIGHT),\
+            (_mul | _div | _mod, BINARY, opAssoc.LEFT),\
+            (_add | _sub, BINARY, opAssoc.LEFT),\
+            (_lsl | _lsr | _and | _or | _xor, BINARY, opAssoc.LEFT),\
+        ])).setResultsName('expr').setName('expr').setDebug()
 
-_statments = _open_bracket + OneOrMore(_statment) + _close_bracket
+_assignment_statement = Group(Group(_label).setResultsName('dst') + _assign + Group(_expression).setResultsName('src') + _semicolon).setResultsName('assign').setName('name')
+
+_statments = (_open_bracket + OneOrMore(_statment) + _close_bracket).setName('statments')
 
 # function
 _function_name = Group(_label).setResultsName('func_name')
-_function_parameters = Group(_open_paren + (_value) + ZeroOrMore(_comma + (_value)) + _close_paren).setResultsName('func_param')
-_function_statment = Group(_function_name + _function_parameters).setResultsName('func')
+_function_parameters = Group(_open_paren + delimitedList(Group(_expression)) + _close_paren).setResultsName('func_param')
+_function_statment = Group((_function_name) + (_function_parameters)).setResultsName('func').setName('func')
 
 # if / else
 _else_statment =\
     Keyword('else') +\
-    (_statment | _statments).setResultsName('else_body')
+    Group(_statment | _statments).setResultsName('else_body').setName('else_body')
+
+_then_statment = Group(\
+    (_statment | _statments)\
+).setResultsName('then_body').setName('then_body')
 
 _if_statment = Group(\
-    Keyword('if') + _predicat.setResultsName('if_predicat') +\
-        (_statment | _statments).setResultsName('if_body') +\
+    Keyword('if') + Group(_predicat).setResultsName('if_predicat') +\
+        _then_statment +\
     Optional(_else_statment)\
-).setResultsName('cond_if')
+).setResultsName('cond_if').setName('cond_if')
 
 # case / when
 _when_statment = Group(\
@@ -98,12 +115,14 @@ _case_statment = Group(\
         _open_bracket +\
             (ZeroOrMore(_when_statment)).setResultsName('case_when') +\
         _close_bracket\
-).setResultsName('cond_case')
+).setResultsName('cond_case').setName('cond_case')
 
-_paren_value = _open_paren + _value + _close_paren
-_value << Optional(_unary_operator).setResultsName('op_un') + (_function_statment | _label | _literal) + Optional(_binary_operators + (_value | _paren_value)).setResultsName('op_bin')
-_statment << Group(_function_statment + _semicolon).setResultsName('statment')
-_predicat << (_open_paren + _value + _close_paren)
+#_paren_value = _open_paren + _value + _close_paren
+#_value << Group(Optional(_unary_operator).setResultsName('op_un') + (_function_statment | _label | _literal)) + Optional(_binary_operators + (_value | _paren_value)).setResultsName('op_bin')
+#_value << (_function_statment | _label | _literal)
+_value << Group(Optional(_unary_operator) + Group(_function_statment | _label | _literal))
+_statment << Group(Group(_function_statment) + _semicolon).setResultsName('statment').setName('statment')
+_predicat << (_open_paren + _value + _close_paren).setResultsName('predicat')
 
 _all = OneOrMore(_if_statment | _case_statment | _statment | _statments | _assignment_statement)
 
@@ -149,12 +168,14 @@ class AST:
     def visit(self, node):
         if type(node) == str:
             raise Exception('bad type of node')
+        print node.dump()
         if not node.haskeys():
-            raise Exception('no key in node')
+            node = node[0]
+            if not node.haskeys():
+                raise Exception('no key in node')
         node_keys = node.keys()
         if len(node_keys) != 1:
             raise Exception('more than one key in node: %s' % node_keys)
-        print node.dump()
 
         node_name = node_keys[0]
         print node_name
@@ -162,13 +183,24 @@ class AST:
         if node_name == 'statment':
             return self.visit_statment(node[0])
 
+        if node_name == 'predicat':
+            return self.visit_predicat(node[0])
+
         if node_name == 'label':
             return self.visit_label(node[0])
+
+        if node_name == 'expr':
+            return self.visit_expression(node)
+
+        if node_name == 'op_un':
+            return self.visit_unary_operator(node)
 
         if node_name == 'lit_bin':
             return self.visit_literal_binary(node[0])
         if node_name == 'lit_hex':
             return self.visit_literal_hexadecimal(node[0])
+        if node_name == 'lit_dec':
+            return self.visit_literal_decimal(node[0])
         if node_name == 'lit_str':
             return self.visit_literal_string(node[0])
 
@@ -184,7 +216,10 @@ class AST:
         raise Exception('unhandled node type: %s' % node_name)
 
     def visit_statment(self, node):
-        return self.visit(node) + ';'
+        return self.visit(node[0]) + ';'
+
+    def visit_predicat(self, node):
+        return self.visit(node)
 
     def visit_label(self, node):
         assert(len(node) != 0)
@@ -202,7 +237,32 @@ class AST:
 
                     return res
 
-        raise Exception('unknown label')
+            if node[1] == 'add_oprd':
+                res += 'AddOperand'
+
+                return res
+
+
+        if node[0] == 'id':
+            return 'expr::MakeId'
+
+        if node[0] == 'mem':
+            return 'expr::MakeMem'
+
+        if node[0] == 'int':
+            return 'Exp::MakeBv'
+
+        if node[0] == 'arm':
+            return node[1]
+
+        raise Exception('unknown label: %s' % node)
+
+    def visit_expression(self, node):
+        aa
+
+    def visit_unary_operator(self, node):
+        val = self.visit(node[1])
+        return node[0][0] + val
 
     def visit_literal_string(self, node):
         return node
@@ -212,6 +272,9 @@ class AST:
 
     def visit_literal_binary(self, node):
         return '0x%08x' % int(node[2:], 2)
+
+    def visit_literal_decimal(self, node):
+        return node
 
     def visit_assignment(self, node):
         dst = self.visit(node.dst)
@@ -227,13 +290,25 @@ class AST:
 
     def visit_if(self, node):
         if_predicat = self.visit(node.if_predicat)
-        if_body = self.visit(node.if_body)
+        then_body = self.visit(node.then_body)
 
         if not hasattr(node, 'else_body'):
-            return 'if (%s)\n{%s\n}' % (if_predicat, if_body)
+            return '''\
+if (%s)
+{
+  %s
+}''' % (if_predicat, then_body)
 
         else_body = self.visit(node.else_body)
-        return 'if (%s)\n{%s\n}\nelse\n{\n%s\n}' % (if_predicat, if_body, else_body)
+        return '''\
+if (%s)
+{
+  %s
+}
+else
+{
+  %s
+}''' % (if_predicat, then_body, else_body)
 
     def visit_case(self, node):
         case_predicat = self.visit(node.case_predicat)
@@ -268,7 +343,7 @@ test1 = '''\
 insn.add_oprd(int(32, 0x0));
 '''
 
-test1='int(32, 0x10);'
+test1='int((0x10 + field("U")) * (2 >> 4), "aa");'
 
 test2 = '''\
 if (field("U"))
@@ -296,6 +371,7 @@ insn.add_oprd(mem(32,
 '''
 
 test7 = '''\
+var(32, "off");
 off = int(32, field('imm8') << 2);
 '''
 
@@ -311,20 +387,34 @@ case (field("size"))
 }
 '''
 
-if __name__ == '__main__':
-    print format_parsed_code(parse(test0))
-    print format_parsed_code(parse(test1))
-    print format_parsed_code(parse(test2))
-    print format_parsed_code(parse(test3))
-    print format_parsed_code(parse(test4))
-    print format_parsed_code(parse(test5))
-    print format_parsed_code(parse(test6))
-    print format_parsed_code(parse(test7))
-    print format_parsed_code(parse(test8))
-    print pprint(parse(test8).asList())
-
+def print_ast(s):
+    print '#' * 80
+    print s
+    print '#' * 80
     ast = AST()
-    res = ast.visit(parse(test8))
+    res = ast.visit(parse(s))
     print '_'*80
     print res
     print '_'*80
+
+if __name__ == '__main__':
+##    print format_parsed_code(parse(test0))
+##    print format_parsed_code(parse(test1))
+##    print format_parsed_code(parse(test2))
+##    print format_parsed_code(parse(test3))
+##    print format_parsed_code(parse(test4))
+##    print format_parsed_code(parse(test5))
+##    print format_parsed_code(parse(test6))
+##    print format_parsed_code(parse(test7))
+##    print format_parsed_code(parse(test8))
+
+    #print_ast(test0)
+    print_ast(test1)
+    print_ast(test2)
+    print_ast(test3)
+    print_ast(test4)
+    print_ast(test5)
+    print_ast(test6)
+    print_ast(test7)
+    print_ast(test8)
+
