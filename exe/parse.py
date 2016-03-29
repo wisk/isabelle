@@ -63,7 +63,7 @@ _binary_literal      = Combine(Literal('0b') + Word('01')).setResultsName('lit_b
 _decimal_literal     = Word( nums ).setResultsName('lit_dec')
 _hexadecimal_literal = Combine(Literal('0x') + Word('0123456789ABCDEFabcdef')).setResultsName('lit_hex')
 _string_literal      = quotedString.setResultsName('lit_str')
-_float_literal       = Combine(Word( nums ).setResultsName('decimal') + _dot + Word( nums ).setResultsName('fractional')).setResultsName('lit_flt')
+_float_literal       = Combine(Word( nums ).setResultsName('decimal') + '.' + Word( nums ).setResultsName('fractional')).setResultsName('lit_flt')
 _literal             = (_float_literal | _binary_literal | _hexadecimal_literal | _decimal_literal | _string_literal).setName('literal')
 
 _value = Forward()
@@ -74,19 +74,19 @@ UNARY,BINARY=1,2
 _expression = (infixNotation(\
         _value,\
         [\
-            (_not | _negate, UNARY, opAssoc.RIGHT),\
+#            (_not | _negate, UNARY, opAssoc.RIGHT),\
             (_mul | _div | _mod, BINARY, opAssoc.LEFT),\
             (_add | _sub, BINARY, opAssoc.LEFT),\
             (_lsl | _lsr | _and | _or | _xor, BINARY, opAssoc.LEFT),\
-        ])).setResultsName('expr').setName('expr').setDebug()
+        ])).setResultsName('expr').setName('expr')
 
-_assignment_statement = Group(Group(_label).setResultsName('dst') + _assign + Group(_expression).setResultsName('src') + _semicolon).setResultsName('assign').setName('name')
+_assignment_statement = Group(Group(_label).setResultsName('dst') + _assign + (Group(_value) | Group(_expression)).setResultsName('src') + _semicolon).setResultsName('assign').setName('name')
 
 _statments = (_open_bracket + OneOrMore(_statment) + _close_bracket).setName('statments')
 
 # function
 _function_name = Group(_label).setResultsName('func_name')
-_function_parameters = Group(_open_paren + delimitedList(Group(_expression)) + _close_paren).setResultsName('func_param')
+_function_parameters = Group(_open_paren + delimitedList((Group(_expression))) + _close_paren).setResultsName('func_param')
 _function_statment = Group((_function_name) + (_function_parameters)).setResultsName('func').setName('func')
 
 # if / else
@@ -120,7 +120,7 @@ _case_statment = Group(\
 #_paren_value = _open_paren + _value + _close_paren
 #_value << Group(Optional(_unary_operator).setResultsName('op_un') + (_function_statment | _label | _literal)) + Optional(_binary_operators + (_value | _paren_value)).setResultsName('op_bin')
 #_value << (_function_statment | _label | _literal)
-_value << Group(Optional(_unary_operator) + Group(_function_statment | _label | _literal))
+_value << Group(Optional(_unary_operator) + Group(_function_statment | _label | _literal)).setName('value')
 _statment << Group(Group(_function_statment) + _semicolon).setResultsName('statment').setName('statment')
 _predicat << (_open_paren + _value + _close_paren).setResultsName('predicat')
 
@@ -168,7 +168,7 @@ class AST:
     def visit(self, node):
         if type(node) == str:
             raise Exception('bad type of node')
-        print node.dump()
+        #print node.dump()
         if not node.haskeys():
             node = node[0]
             if not node.haskeys():
@@ -178,7 +178,7 @@ class AST:
             raise Exception('more than one key in node: %s' % node_keys)
 
         node_name = node_keys[0]
-        print node_name
+        #print node_name
 
         if node_name == 'statment':
             return self.visit_statment(node[0])
@@ -190,7 +190,7 @@ class AST:
             return self.visit_label(node[0])
 
         if node_name == 'expr':
-            return self.visit_expression(node)
+            return self.visit_expression(node[0])
 
         if node_name == 'op_un':
             return self.visit_unary_operator(node)
@@ -203,6 +203,8 @@ class AST:
             return self.visit_literal_decimal(node[0])
         if node_name == 'lit_str':
             return self.visit_literal_string(node[0])
+        if node_name == 'lit_flt':
+            return self.visit_literal_float(node[0])
 
         if node_name == 'assign':
             return self.visit_assignment(node[0])
@@ -252,13 +254,44 @@ class AST:
         if node[0] == 'int':
             return 'Exp::MakeBv'
 
+        if node[0] == 'flt':
+            return 'Expr::MakeBv'
+
+        if node[0] == 'var':
+            return 'Expr::MakeVar'
+
         if node[0] == 'arm':
             return node[1]
 
         raise Exception('unknown label: %s' % node)
 
     def visit_expression(self, node):
-        aa
+        if not node.haskeys():
+            node = node[0]
+        expr_op = node.keys()[0]
+
+        op_dict = {\
+'add':('+','OpAdd'), 'sub':('-','OpSub'), 'mul':('*','OpMul'), 'div':('/','OpUDiv'), 'mod':('%','OpUMod'),\
+'and':('&','OpAnd'), 'or' :('|','OpOr' ), 'xor':('^','OpXor'),\
+'lsl':('<<','OpLls'), 'lsr':('>>','OpLrs'),\
+}
+        if not expr_op in op_dict:
+            return self.visit(node)
+
+        code_op, expr_op = op_dict[expr_op]
+
+        left = None
+        if len(node[0].keys()) and node[0].keys()[0] in op_dict:
+            left = self.visit_expression(node[0])
+        else:
+            left = self.visit(node[0])
+
+        right = None
+        if len(node[2].keys()) and node[2].keys()[0] in op_dict:
+            right = self.visit_expression(node[2])
+        else:
+            right = self.visit(node[2])
+        return '(%s %s %s)' % (left, code_op, right)
 
     def visit_unary_operator(self, node):
         val = self.visit(node[1])
@@ -266,6 +299,9 @@ class AST:
 
     def visit_literal_string(self, node):
         return node
+
+    def visit_literal_float(self, node):
+        return 'BitVector(%s)' % node[0]
 
     def visit_literal_hexadecimal(self, node):
         return node
@@ -312,12 +348,12 @@ else
 
     def visit_case(self, node):
         case_predicat = self.visit(node.case_predicat)
-        case_when = [ (self.visit(x.when_value[0]), self.visit(x.when_body)) for x in node.case_when ]
+        case_when = [ (self.visit(x.when_value), self.visit(x.when_body)) for x in node.case_when ]
 
         cases_body = ''
         for case_value, case_body in case_when:
-            print 'v:', case_value
-            print 'b:', case_body
+            #print 'v:', case_value
+            #print 'b:', case_body
             cases_body += '''\
 case (%s):
 {
@@ -343,7 +379,7 @@ test1 = '''\
 insn.add_oprd(int(32, 0x0));
 '''
 
-test1='int((0x10 + field("U")) * (2 >> 4), "aa");'
+test1='int((0x10 + field("U")) * (2 >> 4), 3);'
 
 test2 = '''\
 if (field("U"))
@@ -372,8 +408,9 @@ insn.add_oprd(mem(32,
 
 test7 = '''\
 var(32, "off");
-off = int(32, field('imm8') << 2);
 '''
+#off = int(32, field('imm8') << 2);
+#'''
 
 test8 = '''\
 case (field("size"))
