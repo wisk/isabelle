@@ -1,0 +1,86 @@
+// ISAbelle grammar in PEG language
+
+
+// literals
+literal_binary      <- r'0b[01]+';
+literal_decimal     <- r'\d+';
+literal_hexadecimal <- r'0[xX][0-9a-fA-F]+';
+literal_string      <- r'"[^"]*"';
+literal_float       <- r'\d+\.\d+';
+literal             <- literal_binary / literal_hexadecimal / literal_string / literal_float / literal_decimal;
+
+// operators
+/// unary operators
+op_unary_not    <- "~";
+op_unary_neg    <- "-";
+// op_unary_fneg
+
+/// binary operators
+op_binary_lls  <- "<<";
+op_binary_lrs  <- ">>";
+// op_binary_ars
+
+op_binary_and  <- "&";
+op_binary_or   <- "|";
+op_binary_xor  <- "^";
+
+op_binary_add  <- "+";
+op_binary_sub  <- "-";
+op_binary_mul  <- "*";
+op_binary_udiv <- "/";
+// op_binary_sdiv
+op_binary_urem <- "%";
+// op_binary_srem
+// op_binary_fadd
+// op_binary_fsub
+// op_binary_fmul
+// op_binary_fdiv
+// op_binary_frem
+
+// http://en.cppreference.com/w/c/language/operator_precedence
+op_0 <- op_unary_not / op_unary_neg; // op_unary_fneg;
+op_1 <- op_binary_mul / op_binary_udiv / op_binary_urem; // op_binary_sdiv / op_binary_srem / op_binary_fmul / op_binary_fdiv / op_binary_frem;
+op_2 <- op_binary_add / op_binary_sub; // op_binary_fadd / op_binary_fsub;
+op_3 <- op_binary_lls / op_binary_lrs; // op_binary_ars;
+op_4 <- op_binary_and;
+op_5 <- op_binary_xor;
+op_6 <- op_binary_or;
+
+// value
+value <- function / label / literal;
+
+// label
+identifier <- r'[_a-zA-Z][_a-zA-Z0-9]*';
+label      <- identifier ('.' identifier)*;
+
+// expression
+expr_0     <- (op_0)? (value / '(' expression ')');
+expr_1     <- expr_0 ((op_1) expr_0)*;
+expr_2     <- expr_1 ((op_2) expr_1)*;
+expr_3     <- expr_2 ((op_3) expr_2)*;
+expr_4     <- expr_3 ((op_4) expr_3)*;
+expr_5     <- expr_4 ((op_5) expr_4)*;
+expression <- expr_5 ((op_6) expr_5)*;
+
+// predicat
+predicat <- expression; // TODO(wisk): handle condition
+
+// assignment
+assignment <- label '=' expression;
+
+// function
+function <- label '(' expression (',' expression)* ')';
+
+// if / else
+if_else <- "if" '(' predicat ')' block ("else" block)?;
+
+// case / when
+when_block <- "when" '(' literal ')' block;
+case_when <- "case" '(' expression ')' '{' when_block+ '}';
+
+// statment
+statment <- case_when / if_else / (function ';') / (assignment ';');
+block <- '{' statment+ '}' / statment;
+
+// entrypoint
+code <- statment+ EOF;
