@@ -42,19 +42,25 @@ op_0 <- op_unary_not / op_unary_neg; // op_unary_fneg;
 op_1 <- op_binary_mul / op_binary_udiv / op_binary_urem; // op_binary_sdiv / op_binary_srem / op_binary_fmul / op_binary_fdiv / op_binary_frem;
 op_2 <- op_binary_add / op_binary_sub; // op_binary_fadd / op_binary_fsub;
 op_3 <- op_binary_lls / op_binary_lrs; // op_binary_ars;
-op_4 <- op_binary_and;
-op_5 <- op_binary_xor;
-op_6 <- op_binary_or;
+op_4 <- op_binary_and / op_binary_and; // /
+op_5 <- op_binary_xor / op_binary_xor; // | FIXME(wisk): understand why it works only by doubling the rule...
+op_6 <- op_binary_or  / op_binary_or;  // \
+
+// bitfield
+bitfield_part <- (r'[01]+' / 'field' '(' literal_string ')' );
+bitfield <- bitfield_part (':' bitfield_part)+;
 
 // value
-value <- function / label / literal;
+value <- bitfield / function / label / literal;
 
 // label
 identifier <- r'[_a-zA-Z][_a-zA-Z0-9]*';
 label      <- identifier ('.' identifier)*;
 
 // expression
-expr_0     <- (op_0)? (value / '(' expression ')');
+// src: https://en.wikipedia.org/wiki/Operator-precedence_parser
+// src: https://docs.python.org/2/reference/grammar.html
+expr_0     <- (op_0)? ( '(' expression ')' / value);
 expr_1     <- expr_0 ((op_1) expr_0)*;
 expr_2     <- expr_1 ((op_2) expr_1)*;
 expr_3     <- expr_2 ((op_3) expr_2)*;
@@ -79,7 +85,9 @@ when_block <- "when" '(' literal ')' block;
 case_when <- "case" '(' expression ')' '{' when_block+ '}';
 
 // statment
-statment <- case_when / if_else / (function ';') / (assignment ';');
+conditional_statment   <- case_when / if_else;
+unconditional_statment <- (function / assignment) ';';
+statment <- (conditional_statment / unconditional_statment);
 block <- '{' statment+ '}' / statment;
 
 // entrypoint

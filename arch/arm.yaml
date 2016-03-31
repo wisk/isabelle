@@ -1,5 +1,13 @@
-architecture_information:
-  name: arm
+name: arm
+
+mode: [ 'ARM', 'Thumb' ]
+
+condition: { 'eq':0, 'ne':1, 'cs':2, 'cc':3, 'mi':4, 'pl':5, 'vs':6, 'vc':7, 'hi':8, 'ls':9, 'ge':10, 'lt':11, 'gt':11, 'le':12 }
+
+register:
+  - flag : { 'nf':0, 'cf':1, 'vf':2, 'zf':3 }
+  - GPR32: { 'r0':0, 'r1':1, 'r2':2, 'r3':3, 'r4':4, 'r5':5, 'r6':6, 'r7':7, 'r8':8, 'r9':9, 'r10':10, 'r11':11, 'fp':11, 'r12':12, 'ip':12, 'r13':13, 'sp':13, 'r14':14, 'lr':14, 'r15':15, 'pc':15 }
+
 
 instruction:
   - encoding: ['1', '1', '1', '1', '0', 'imm#1', '0', '1', '0', '1', '0', 'S#1', 'Rn#4', '0', 'imm#3', 'Rd#4', 'imm#8']
@@ -888,7 +896,7 @@ instruction:
     decoder: |
       insn.mnem.set("blx");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id("pc") + field("imm"));
+      insn.add_oprd(id("pc") + field("imm_h"):field("imm_l"));
 
     semantic: []
 
@@ -995,9 +1003,15 @@ instruction:
     decoder: |
       insn.mnem.set("cb");
       if (field("op"))
-        insn.mnem.set_cond("nz");
+      {
+        insn.mnem.add_suffix("nz");
+        insn.set_cond(arm.Condition("nz"));
+      }
       else
-        insn.mnem.set_cond("z");
+      {
+        insn.mnem.add_suffix("z");
+        insn.set_cond(arm.Condition("z"));
+      }
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
       insn.add_oprd(id("pc") + field("imm"));
 
@@ -1518,7 +1532,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -1557,7 +1571,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -2064,7 +2078,7 @@ instruction:
 
     semantic: []
 
-  - encoding: ['cond#4', '0', '1', '1', '0', 'U#1', '1', '1', '1', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
+  - encoding: ['cond#4', '0', '1', '1', '0', 'W#1', '1', '1', '1', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: A2
     attribute: [ 'could_jmp' ]
@@ -2091,7 +2105,7 @@ instruction:
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -2109,9 +2123,9 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -2138,7 +2152,7 @@ instruction:
       insn.mnem.set("ldrd");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64, id("pc")));
 
     semantic: []
@@ -2152,7 +2166,7 @@ instruction:
       insn.mnem.set("ldrd");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>")))));
       if (field("U"))
         insn.add_oprd(id(arm.Register("GPR32", field("<Rm>"))));
@@ -2237,7 +2251,7 @@ instruction:
       insn.mnem.set("ldrexd");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>")))));
 
     semantic: []
@@ -2323,7 +2337,7 @@ instruction:
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -2485,7 +2499,7 @@ instruction:
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(8,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -2647,7 +2661,7 @@ instruction:
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -2797,7 +2811,7 @@ instruction:
 
     semantic: []
 
-  - encoding: ['cond#4', '0', '1', '1', '0', 'U#1', '0', '1', '1', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
+  - encoding: ['cond#4', '0', '1', '1', '0', 'W#1', '0', '1', '1', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: A2
     attribute: [ 'could_jmp' ]
@@ -5830,7 +5844,7 @@ instruction:
       insn.mnem.set("ssat");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(int(32, field("sat_imm")));
       not_implemented("operand <Rn>{,<shift>}");
 
     semantic: []
@@ -5844,7 +5858,7 @@ instruction:
       insn.mnem.set("ssat16");
       insn.add_attr("support-it-block");
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(int(32, field("sat_imm")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
 
     semantic: []
@@ -5858,7 +5872,7 @@ instruction:
       insn.mnem.set("ssat16");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(int(32, field("sat_imm")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rn"))));
 
     semantic: []
@@ -5962,7 +5976,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6001,7 +6015,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6380,7 +6394,7 @@ instruction:
 
     semantic: []
 
-  - encoding: ['cond#4', '0', '1', '1', '0', 'U#1', '1', '1', '0', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
+  - encoding: ['cond#4', '0', '1', '1', '0', 'W#1', '1', '1', '0', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: A2
     attribute: []
@@ -6407,7 +6421,7 @@ instruction:
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field('imm8') << 2);
+      off = int(32, field("imm") << 2);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>"))) + off));
       else
@@ -6425,9 +6439,9 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -6440,7 +6454,7 @@ instruction:
       insn.mnem.set("strd");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>")))));
       if (field("U"))
         insn.add_oprd(id(arm.Register("GPR32", field("<Rm>"))));
@@ -6531,7 +6545,7 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
+      insn.add_oprd(id(arm.Register("GPR32", field("Rt") + 1)));
       insn.add_oprd(mem(64, id(arm.Register("GPR32", field("<Rn>")))));
 
     semantic: []
@@ -6619,7 +6633,7 @@ instruction:
       insn.add_attr("write-back");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(mem(16,
-        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm"))));
+        id(arm.Register("GPR32", field("<Rn>"))) + int(32, field("imm_h"):field("imm_l"))));
 
     semantic: []
 
@@ -6729,7 +6743,7 @@ instruction:
 
     semantic: []
 
-  - encoding: ['cond#4', '0', '1', '0', '0', 'U#1', '0', '1', '0', 'Rn#4', 'Rt#4', 'imm#12']
+  - encoding: ['cond#4', '0', '1', '0', '0', 'W#1', '0', '1', '0', 'Rn#4', 'Rt#4', 'imm#12']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: A1
     attribute: []
@@ -6744,7 +6758,7 @@ instruction:
 
     semantic: []
 
-  - encoding: ['cond#4', '0', '1', '1', '0', 'U#1', '0', '1', '0', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
+  - encoding: ['cond#4', '0', '1', '1', '0', 'W#1', '0', '1', '0', 'Rn#4', 'Rt#4', 'imm#5', 'type#2', '0', 'Rm#4']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: A2
     attribute: []
@@ -8332,10 +8346,7 @@ instruction:
       insn.mnem.set("vaba");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8345,9 +8356,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8360,10 +8371,7 @@ instruction:
       insn.mnem.set("vaba");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8373,9 +8381,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8388,10 +8396,7 @@ instruction:
       insn.mnem.set("vabal");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8401,9 +8406,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8416,10 +8421,7 @@ instruction:
       insn.mnem.set("vabal");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8429,9 +8431,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8444,10 +8446,7 @@ instruction:
       insn.mnem.set("vabd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8457,9 +8456,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8472,10 +8471,7 @@ instruction:
       insn.mnem.set("vabd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8485,9 +8481,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8500,10 +8496,7 @@ instruction:
       insn.mnem.set("vabdl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8513,9 +8506,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8528,10 +8521,7 @@ instruction:
       insn.mnem.set("vabdl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8541,9 +8531,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8556,9 +8546,9 @@ instruction:
       insn.mnem.set("vabd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8571,9 +8561,9 @@ instruction:
       insn.mnem.set("vabd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8587,10 +8577,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8600,8 +8587,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8615,10 +8602,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8628,8 +8612,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8643,8 +8627,8 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8658,8 +8642,8 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8673,9 +8657,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8689,9 +8673,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8704,10 +8688,7 @@ instruction:
       insn.mnem.set("vadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8717,9 +8698,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8732,10 +8713,7 @@ instruction:
       insn.mnem.set("vadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8745,9 +8723,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8760,9 +8738,9 @@ instruction:
       insn.mnem.set("vadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8775,9 +8753,9 @@ instruction:
       insn.mnem.set("vadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8790,9 +8768,9 @@ instruction:
       insn.mnem.set("vadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8805,9 +8783,9 @@ instruction:
       insn.mnem.set("vadd");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8820,10 +8798,7 @@ instruction:
       insn.mnem.set("vaddhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8833,9 +8808,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8848,10 +8823,7 @@ instruction:
       insn.mnem.set("vaddhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8861,9 +8833,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8876,10 +8848,7 @@ instruction:
       insn.mnem.set("vaddl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8889,9 +8858,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8904,10 +8873,7 @@ instruction:
       insn.mnem.set("vaddw");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -8917,9 +8883,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8931,9 +8897,9 @@ instruction:
     decoder: |
       insn.mnem.set("vand");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8945,9 +8911,9 @@ instruction:
     decoder: |
       insn.mnem.set("vand");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -8960,20 +8926,9 @@ instruction:
       insn.mnem.set("vbic");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -8987,20 +8942,9 @@ instruction:
       insn.mnem.set("vbic");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -9013,9 +8957,9 @@ instruction:
     decoder: |
       insn.mnem.set("vbic");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9027,9 +8971,9 @@ instruction:
     decoder: |
       insn.mnem.set("vbic");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9042,9 +8986,9 @@ instruction:
       insn.mnem.set("v");
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9057,9 +9001,9 @@ instruction:
       insn.mnem.set("v");
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9072,10 +9016,7 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9085,9 +9026,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9100,10 +9041,7 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9113,9 +9051,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9128,9 +9066,9 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9143,9 +9081,9 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9158,10 +9096,7 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9171,8 +9106,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9186,10 +9121,7 @@ instruction:
       insn.mnem.set("vceq");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9199,8 +9131,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9214,10 +9146,7 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9227,9 +9156,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9242,10 +9171,7 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9255,9 +9181,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9270,9 +9196,9 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9285,9 +9211,9 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9300,10 +9226,7 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9313,8 +9236,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9328,10 +9251,7 @@ instruction:
       insn.mnem.set("vcge");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9341,8 +9261,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9356,10 +9276,7 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9369,9 +9286,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9384,10 +9301,7 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9397,9 +9311,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9412,9 +9326,9 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9427,9 +9341,9 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9442,10 +9356,7 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9455,8 +9366,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9470,10 +9381,7 @@ instruction:
       insn.mnem.set("vcgt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9483,8 +9391,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9498,10 +9406,7 @@ instruction:
       insn.mnem.set("vcle");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9511,8 +9416,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9526,10 +9431,7 @@ instruction:
       insn.mnem.set("vcle");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9539,8 +9441,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9555,10 +9457,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9568,8 +9467,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9583,10 +9482,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9596,8 +9492,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9610,10 +9506,7 @@ instruction:
       insn.mnem.set("vclt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9623,8 +9516,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9638,10 +9531,7 @@ instruction:
       insn.mnem.set("vclt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9651,8 +9541,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, 0x0));
 
     semantic: []
@@ -9666,10 +9556,7 @@ instruction:
       insn.mnem.set("vclz");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9679,8 +9566,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9693,10 +9580,7 @@ instruction:
       insn.mnem.set("vclz");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -9706,8 +9590,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9722,8 +9606,8 @@ instruction:
         insn.mnem.add_suffix("E");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9738,8 +9622,8 @@ instruction:
         insn.mnem.add_suffix("E");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9754,7 +9638,7 @@ instruction:
         insn.mnem.add_suffix("E");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       insn.add_oprd(flt(0.0));
 
     semantic: []
@@ -9770,7 +9654,7 @@ instruction:
         insn.mnem.add_suffix("E");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       insn.add_oprd(flt(0.0));
 
     semantic: []
@@ -9784,8 +9668,8 @@ instruction:
       insn.mnem.set("vcnt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9798,8 +9682,8 @@ instruction:
       insn.mnem.set("vcnt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9812,10 +9696,7 @@ instruction:
       insn.mnem.set("vcvt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("op"))
       {
         when (0b10)
@@ -9827,8 +9708,8 @@ instruction:
         when (0b01)
           insn.mnem.add_suffix(".F32.U32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9841,10 +9722,7 @@ instruction:
       insn.mnem.set("vcvt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("op"))
       {
         when (0b10)
@@ -9856,8 +9734,8 @@ instruction:
         when (0b01)
           insn.mnem.add_suffix(".F32.U32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9868,12 +9746,10 @@ instruction:
     format: 'VCVT{R}<c>.S32.F64 <Sd>, <Dm>'
     decoder: |
       insn.mnem.set("vcvt");
-      if (field("R"))
-        insn.mnem.add_suffix("R");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".S32.F64");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9892,8 +9768,8 @@ instruction:
       else
         insn.mnem.add_suffix("U");
       insn.mnem.add_suffix("32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -9906,10 +9782,7 @@ instruction:
       insn.mnem.set("vcvt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("op"))
       {
         when (0b10)
@@ -9921,8 +9794,8 @@ instruction:
         when (0b01)
           insn.mnem.add_suffix(".F32.U32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       not_implemented("operand #<fbits>");
 
     semantic: []
@@ -9936,10 +9809,7 @@ instruction:
       insn.mnem.set("vcvt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("op"))
       {
         when (0b10)
@@ -9951,8 +9821,8 @@ instruction:
         when (0b01)
           insn.mnem.add_suffix(".F32.U32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       not_implemented("operand #<fbits>");
 
     semantic: []
@@ -9966,17 +9836,14 @@ instruction:
       insn.mnem.set("vcvt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       if (field("sx"))
         insn.mnem.add_suffix("32");
       else
         insn.mnem.add_suffix("16");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand #<fbits>");
 
     semantic: []
@@ -9991,16 +9858,13 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       if (field("sx"))
         insn.mnem.add_suffix("32");
       else
         insn.mnem.add_suffix("16");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       not_implemented("operand #<fbits>");
 
     semantic: []
@@ -10015,8 +9879,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10030,8 +9894,8 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10045,8 +9909,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
       insn.mnem.add_suffix(".F16");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10060,8 +9924,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F16");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10079,8 +9943,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
       insn.mnem.add_suffix(".F16");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10098,8 +9962,8 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F16");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10112,9 +9976,9 @@ instruction:
       insn.mnem.set("vdiv");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10127,9 +9991,9 @@ instruction:
       insn.mnem.set("vdiv");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10143,7 +10007,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10158,7 +10022,7 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10197,9 +10061,9 @@ instruction:
     decoder: |
       insn.mnem.set("veor");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10211,9 +10075,9 @@ instruction:
     decoder: |
       insn.mnem.set("veor");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10226,9 +10090,9 @@ instruction:
       insn.mnem.set("vext");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -10242,9 +10106,9 @@ instruction:
       insn.mnem.set("vext");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -10258,9 +10122,9 @@ instruction:
       insn.mnem.set("vh");
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10273,9 +10137,9 @@ instruction:
       insn.mnem.set("vh");
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10289,8 +10153,6 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      if (field("W"))
-        insn.add_attr("write-back");
       not_implemented("operand <list>");
       not_implemented("operand [<Rn>{@<align>}]");
 
@@ -10322,8 +10184,6 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      if (field("W"))
-        insn.add_attr("write-back");
       not_implemented("operand <list>");
       not_implemented("operand [<Rn>{@<align>}]");
 
@@ -10355,8 +10215,6 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      if (field("W"))
-        insn.add_attr("write-back");
       not_implemented("operand <list>");
       not_implemented("operand [<Rn>{@<align>}]");
 
@@ -10450,7 +10308,7 @@ instruction:
     decoder: |
       insn.mnem.set("vldr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -10463,7 +10321,7 @@ instruction:
     decoder: |
       insn.mnem.set("vldr");
       insn.set_cond(arm.Condition(field("cond")));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       insn.add_oprd(mem(32, id("pc")));
 
     semantic: []
@@ -10476,7 +10334,7 @@ instruction:
     decoder: |
       insn.mnem.set("vldr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -10489,7 +10347,7 @@ instruction:
     decoder: |
       insn.mnem.set("vldr");
       insn.set_cond(arm.Condition(field("cond")));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       insn.add_oprd(mem(32, id("pc")));
 
     semantic: []
@@ -10504,10 +10362,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10517,9 +10372,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10533,10 +10388,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10546,9 +10398,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10562,9 +10414,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10578,9 +10430,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10594,10 +10446,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10607,9 +10456,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10623,10 +10472,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10636,9 +10482,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10653,10 +10499,7 @@ instruction:
       insn.mnem.add_suffix("L");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10666,9 +10509,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10683,10 +10526,7 @@ instruction:
       insn.mnem.add_suffix("L");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10696,9 +10536,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10712,9 +10552,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10728,9 +10568,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10744,9 +10584,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10760,9 +10600,9 @@ instruction:
       not_implemented("field <op>");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10776,10 +10616,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10789,8 +10626,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10805,10 +10642,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10818,8 +10652,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10835,10 +10669,7 @@ instruction:
       insn.mnem.add_suffix("L");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10848,8 +10679,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10865,10 +10696,7 @@ instruction:
       insn.mnem.add_suffix("L");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -10878,8 +10706,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -10893,20 +10721,9 @@ instruction:
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -10920,20 +10737,9 @@ instruction:
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -10947,8 +10753,8 @@ instruction:
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(int(32, field("imm_h"):field("imm_l")));
 
     semantic: []
 
@@ -10961,8 +10767,8 @@ instruction:
       insn.mnem.set("vmov");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(int(32, field("imm_h"):field("imm_l")));
 
     semantic: []
 
@@ -10975,8 +10781,8 @@ instruction:
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -10989,8 +10795,8 @@ instruction:
       insn.mnem.set("vmov");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11033,19 +10839,7 @@ instruction:
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
+
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       not_implemented("operand <Dn[x]>");
 
@@ -11060,19 +10854,7 @@ instruction:
       insn.mnem.set("vmov");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
+
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       not_implemented("operand <Dn[x]>");
 
@@ -11086,7 +10868,7 @@ instruction:
     decoder: |
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
 
     semantic: []
@@ -11100,7 +10882,7 @@ instruction:
       insn.mnem.set("vmov");
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -11112,7 +10894,7 @@ instruction:
     decoder: |
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
       not_implemented("operand <Sm1>");
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
@@ -11129,7 +10911,7 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
       not_implemented("operand <Sm1>");
 
     semantic: []
@@ -11142,7 +10924,7 @@ instruction:
     decoder: |
       insn.mnem.set("vmov");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
 
@@ -11158,7 +10940,7 @@ instruction:
       insn.set_cond(arm.Condition(field("cond")));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.Register("GPR32", field("Rt2"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11171,21 +10953,10 @@ instruction:
       insn.mnem.set("vmovl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11198,21 +10969,10 @@ instruction:
       insn.mnem.set("vmovl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11225,10 +10985,7 @@ instruction:
       insn.mnem.set("vmovn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11238,8 +10995,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11252,10 +11009,7 @@ instruction:
       insn.mnem.set("vmovn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11265,8 +11019,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11333,10 +11087,7 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11346,9 +11097,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11361,10 +11112,7 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11374,9 +11122,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11389,10 +11137,7 @@ instruction:
       insn.mnem.set("vmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11402,9 +11147,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11417,10 +11162,7 @@ instruction:
       insn.mnem.set("vmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11430,9 +11172,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11445,9 +11187,9 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11460,9 +11202,9 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11475,9 +11217,9 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11490,9 +11232,9 @@ instruction:
       insn.mnem.set("vmul");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11505,10 +11247,7 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11518,8 +11257,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -11533,10 +11272,7 @@ instruction:
       insn.mnem.set("vmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11546,8 +11282,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -11561,10 +11297,7 @@ instruction:
       insn.mnem.set("vmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11574,8 +11307,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -11589,10 +11322,7 @@ instruction:
       insn.mnem.set("vmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11602,8 +11332,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -11616,8 +11346,8 @@ instruction:
     decoder: |
       insn.mnem.set("vmvn");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11629,8 +11359,8 @@ instruction:
     decoder: |
       insn.mnem.set("vmvn");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11643,10 +11373,7 @@ instruction:
       insn.mnem.set("vneg");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11656,8 +11383,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11670,10 +11397,7 @@ instruction:
       insn.mnem.set("vneg");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11683,8 +11407,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11697,8 +11421,8 @@ instruction:
       insn.mnem.set("vneg");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11711,8 +11435,8 @@ instruction:
       insn.mnem.set("vneg");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11725,9 +11449,9 @@ instruction:
       insn.mnem.set("vnmla");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11741,9 +11465,9 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11756,9 +11480,9 @@ instruction:
       insn.mnem.set("vnmul");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11771,9 +11495,9 @@ instruction:
       insn.mnem.set("vnmul");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11785,9 +11509,9 @@ instruction:
     decoder: |
       insn.mnem.set("vorn");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11799,9 +11523,9 @@ instruction:
     decoder: |
       insn.mnem.set("vorn");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11814,20 +11538,9 @@ instruction:
       insn.mnem.set("vorr");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -11841,20 +11554,9 @@ instruction:
       insn.mnem.set("vorr");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
-      case (field("size"))
-      {
-        when (0b00)
-          insn.mnem.add_suffix("8");
-        when (0b01)
-          insn.mnem.add_suffix("16");
-        when (0b10)
-          insn.mnem.add_suffix("32");
-      }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+
+      not_implemented("field: <imm>");
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -11867,9 +11569,9 @@ instruction:
     decoder: |
       insn.mnem.set("vorr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11881,9 +11583,9 @@ instruction:
     decoder: |
       insn.mnem.set("vorr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11896,10 +11598,7 @@ instruction:
       insn.mnem.set("vpadal");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11909,8 +11608,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11923,10 +11622,7 @@ instruction:
       insn.mnem.set("vpadal");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11936,8 +11632,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -11950,10 +11646,7 @@ instruction:
       insn.mnem.set("vpadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -11975,10 +11668,7 @@ instruction:
       insn.mnem.set("vpadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12024,10 +11714,7 @@ instruction:
       insn.mnem.set("vpaddl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12037,8 +11724,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12051,10 +11738,7 @@ instruction:
       insn.mnem.set("vpaddl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12064,8 +11748,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12079,10 +11763,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12092,9 +11773,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12108,10 +11789,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12121,9 +11799,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12137,9 +11815,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12153,9 +11831,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12258,10 +11936,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12271,8 +11946,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12286,10 +11961,7 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12299,8 +11971,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12313,10 +11985,7 @@ instruction:
       insn.mnem.set("vqadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12326,9 +11995,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12341,10 +12010,7 @@ instruction:
       insn.mnem.set("vqadd");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12354,9 +12020,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12370,10 +12036,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12383,9 +12046,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12399,10 +12062,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12412,9 +12072,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12428,10 +12088,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12441,8 +12098,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12457,10 +12114,7 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12470,8 +12124,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12485,10 +12139,7 @@ instruction:
       insn.mnem.set("vqdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12498,9 +12149,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12513,10 +12164,7 @@ instruction:
       insn.mnem.set("vqdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12526,9 +12174,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12541,10 +12189,7 @@ instruction:
       insn.mnem.set("vqdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12554,8 +12199,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12569,10 +12214,7 @@ instruction:
       insn.mnem.set("vqdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12582,8 +12224,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12597,10 +12239,7 @@ instruction:
       insn.mnem.set("vqdmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12610,9 +12249,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12625,10 +12264,7 @@ instruction:
       insn.mnem.set("vqdmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12638,9 +12274,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12653,10 +12289,7 @@ instruction:
       insn.mnem.set("vqdmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12666,8 +12299,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12681,10 +12314,7 @@ instruction:
       insn.mnem.set("vqdmull");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12694,8 +12324,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12714,8 +12344,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12733,8 +12363,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12747,10 +12377,7 @@ instruction:
       insn.mnem.set("vqneg");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12760,8 +12387,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12774,10 +12401,7 @@ instruction:
       insn.mnem.set("vqneg");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12787,8 +12411,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12801,10 +12425,7 @@ instruction:
       insn.mnem.set("vqrdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12814,9 +12435,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12829,10 +12450,7 @@ instruction:
       insn.mnem.set("vqrdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12842,9 +12460,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -12857,10 +12475,7 @@ instruction:
       insn.mnem.set("vqrdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12870,8 +12485,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12885,10 +12500,7 @@ instruction:
       insn.mnem.set("vqrdmulh");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -12898,8 +12510,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
       not_implemented("operand <Dm[x]>");
 
     semantic: []
@@ -12916,9 +12528,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -12934,9 +12546,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -12954,8 +12566,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -12974,8 +12586,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -12992,9 +12604,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13010,9 +12622,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13029,8 +12641,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13048,8 +12660,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13068,8 +12680,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13088,8 +12700,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13106,9 +12718,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13124,9 +12736,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13139,10 +12751,7 @@ instruction:
       insn.mnem.set("vraddhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13152,9 +12761,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13167,10 +12776,7 @@ instruction:
       insn.mnem.set("vraddhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13180,9 +12786,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13195,10 +12801,7 @@ instruction:
       insn.mnem.set("vrecpe");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13208,8 +12811,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13222,10 +12825,7 @@ instruction:
       insn.mnem.set("vrecpe");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13235,8 +12835,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13250,9 +12850,9 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13266,9 +12866,9 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13283,8 +12883,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13299,8 +12899,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13312,9 +12912,9 @@ instruction:
     decoder: |
       insn.mnem.set("vrhadd");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13326,9 +12926,9 @@ instruction:
     decoder: |
       insn.mnem.set("vrhadd");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13344,9 +12944,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13362,9 +12962,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13380,8 +12980,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13398,8 +12998,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13415,8 +13015,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13432,8 +13032,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13447,10 +13047,7 @@ instruction:
       insn.mnem.set("vrsqrte");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13460,8 +13057,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13474,10 +13071,7 @@ instruction:
       insn.mnem.set("vrsqrte");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13487,8 +13081,8 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13502,9 +13096,9 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13518,9 +13112,9 @@ instruction:
       insn.mnem.add_suffix("s");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13536,8 +13130,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13554,8 +13148,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13569,10 +13163,7 @@ instruction:
       insn.mnem.set("vrsubhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13582,9 +13173,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13597,10 +13188,7 @@ instruction:
       insn.mnem.set("vrsubhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -13610,9 +13198,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13627,8 +13215,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13644,8 +13232,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13661,9 +13249,9 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13678,9 +13266,9 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
 
     semantic: []
 
@@ -13696,8 +13284,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13714,8 +13302,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13732,9 +13320,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      not_implemented("field: <esize>");
 
     semantic: []
 
@@ -13750,9 +13338,9 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
-      insn.add_oprd(int(32, field("imm")));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
+      not_implemented("field: <esize>");
 
     semantic: []
 
@@ -13768,8 +13356,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13786,8 +13374,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13803,8 +13391,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13820,8 +13408,8 @@ instruction:
       insn.mnem.add_suffix(".I");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13836,8 +13424,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13852,8 +13440,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13867,8 +13455,8 @@ instruction:
       insn.mnem.set("vsqrt");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13881,8 +13469,8 @@ instruction:
       insn.mnem.set("vsqrt");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -13898,8 +13486,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13916,8 +13504,8 @@ instruction:
       not_implemented("field <type>");
       not_implemented("field <size>");
 
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13932,8 +13520,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13948,8 +13536,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
       insn.add_oprd(int(32, field("imm")));
 
     semantic: []
@@ -13964,8 +13552,6 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      if (field("W"))
-        insn.add_attr("write-back");
       not_implemented("operand <list>");
       not_implemented("operand [<Rn>{@<align>}]");
 
@@ -13997,8 +13583,6 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      if (field("W"))
-        insn.add_attr("write-back");
       not_implemented("operand <list>");
       not_implemented("operand [<Rn>{@<align>}]");
 
@@ -14092,7 +13676,7 @@ instruction:
     decoder: |
       insn.mnem.set("vstr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -14105,7 +13689,7 @@ instruction:
     decoder: |
       insn.mnem.set("vstr");
       insn.set_cond(arm.Condition(field("cond")));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -14118,7 +13702,7 @@ instruction:
     decoder: |
       insn.mnem.set("vstr");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -14131,7 +13715,7 @@ instruction:
     decoder: |
       insn.mnem.set("vstr");
       insn.set_cond(arm.Condition(field("cond")));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
       not_implemented("operand [<Rn>{,#+/-<imm>}]");
 
     semantic: []
@@ -14145,10 +13729,7 @@ instruction:
       insn.mnem.set("vsub");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14158,9 +13739,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14173,10 +13754,7 @@ instruction:
       insn.mnem.set("vsub");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14186,9 +13764,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14201,9 +13779,9 @@ instruction:
       insn.mnem.set("vsub");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14216,9 +13794,9 @@ instruction:
       insn.mnem.set("vsub");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14231,9 +13809,9 @@ instruction:
       insn.mnem.set("vsub");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".F64");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14246,9 +13824,9 @@ instruction:
       insn.mnem.set("vsub");
       insn.set_cond(arm.Condition(field("cond")));
       insn.mnem.add_suffix(".F32");
-      insn.add_oprd(id(arm.Register("FPR32", field("Sd"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sn"))));
-      insn.add_oprd(id(arm.Register("FPR32", field("Sm"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("FPR32", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14261,10 +13839,7 @@ instruction:
       insn.mnem.set("vsubhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14274,9 +13849,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14289,10 +13864,7 @@ instruction:
       insn.mnem.set("vsubhn");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14302,9 +13874,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14317,10 +13889,7 @@ instruction:
       insn.mnem.set("vsubl");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14330,9 +13899,9 @@ instruction:
         when (0b10)
           insn.mnem.add_suffix("32");
       }
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14345,10 +13914,7 @@ instruction:
       insn.mnem.set("vsubw");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
-      if (field("U"))
-        insn.mnem.add_suffix("U");
-      else
-        insn.mnem.add_suffix("S");
+
       case (field("size"))
       {
         when (0b00)
@@ -14359,8 +13925,8 @@ instruction:
           insn.mnem.add_suffix("32");
       }
       not_implemented("operand {<Qd>,}");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14372,8 +13938,8 @@ instruction:
     decoder: |
       insn.mnem.set("vswp");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14385,8 +13951,8 @@ instruction:
     decoder: |
       insn.mnem.set("vswp");
       insn.add_attr("support-it-block");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14400,9 +13966,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand <list>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14416,9 +13982,9 @@ instruction:
       not_implemented("field <op>");
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".8");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
       not_implemented("operand <list>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14432,8 +13998,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14447,8 +14013,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14462,9 +14028,9 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qn"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14478,9 +14044,9 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dn"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("N"):field("Vn"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14494,8 +14060,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14509,8 +14075,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14524,8 +14090,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qd"))));
-      insn.add_oprd(id(arm.Register("SIMDR128", field("Qm"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR128", field("M"):field("Vm"))));
 
     semantic: []
 
@@ -14539,8 +14105,8 @@ instruction:
       insn.add_attr("support-it-block");
       insn.mnem.add_suffix(".");
       not_implemented("field <size>");
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dd"))));
-      insn.add_oprd(id(arm.Register("SIMDR64", field("Dm"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("D"):field("Vd"))));
+      insn.add_oprd(id(arm.Register("SIMDR64", field("M"):field("Vm"))));
 
     semantic: []
 

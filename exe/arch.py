@@ -8,7 +8,7 @@ class ArchConvertion:
         self.arch = arch
 
     def GetArchName(self):
-        return self.arch['architecture_information']['name'].capitalize()
+        return self.arch['name'].capitalize()
 
     def GenerateBanner(self):
         return '/* This file has been automatically generated, you must _NOT_ edit it directly. (%s) */\n' % time.ctime()

@@ -13,7 +13,7 @@ def main():
 
         conv = None
 
-        arch_name = d['architecture_information']['name']
+        arch_name = d['name']
         mod = __import__('arch_%s' % arch_name)
         conv_class = getattr(mod, '%sArchConvertion' % arch_name.capitalize())
         conv = conv_class(d)

@@ -2,15 +2,16 @@ from arch import ArchConvertion
 from helper import *
 
 import re
-import compiler
-import ast
+import sys
 import string
 
-from parse import *
+sys.path.append('../parser')
+from isabelle_parser import convert_decoder_to_medusa
 
 class ArmArchConvertion(ArchConvertion):
     def __init__(self, arch):
         ArchConvertion.__init__(self, arch)
+        self.arch = arch
         self.all_mnemo = set()
 
         self.id_mapper = {
@@ -185,17 +186,11 @@ class ArmArchConvertion(ArchConvertion):
         return 'SignExtend<s64, %d>(%s)%s' % (sx_bit, ' | '.join(res), scale_str)
 
     def _ARM_GenerateInstruction(self, insn):
-        print insn['format']
-        ast = parse(insn['decoder'])
-        if not ast:
-            raise Exception('failed to parse decoder for: %s' % insn['format'])
-        print format_parsed_code(ast)
-
-        res = compile_to_cpp(ast)
-        if not res:
+        medusa_decoder = convert_decoder_to_medusa(self.arch, insn)
+        if not medusa_decoder:
             raise Exception('failed to compile AST for: %s' % insn['format'])
 
-        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(res)
+        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(medusa_decoder + '\n')
 
     def _ARM_GenerateInstructionComment(self, insn):
         return '// %s - %s - %s\n' % (insn['format'], insn['attribute'], insn['encoding'])
