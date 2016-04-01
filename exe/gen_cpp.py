@@ -35,6 +35,7 @@ def main():
 
         arch_cpp.write(conv.GenerateBanner())
         arch_cpp.write('#include "%s_architecture.hpp"\n' % arch_name)
+        arch_cpp.write('#include "%s_helper.hpp"\n' % arch_name)
         arch_cpp.write(mns)
         arch_cpp.write(src)
         arch_cpp.write(opc)

@@ -252,7 +252,7 @@ class ArmArchConvertion(ArchConvertion):
             insns_list = sorted(insns_dict.items(), key=get_bit_count)
 
             for mask, insn_list in insns_list:
-                bit = len(insn_list[0]['encoding'])
+                bit = self._ARM_GetSize(insn_list[0])
                 if len(insn_list) == 1:
                     value = arm._ARM_GetValue(insn_list[0])
                     res += arm._GenerateCondition('if', '(Opcode%d & %#010x) == %#010x' % (bit, mask, value), self._ARM_GenerateInstructionComment(insn_list[0]) + 'return %s(rBinStrm, Offset, Opcode%d, rInsn);' % (arm._ARM_GenerateMethodName(insn_list[0]), bit))

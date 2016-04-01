@@ -26,7 +26,7 @@ class IsabelleVisitor(PTNodeVisitor):
         self.insn = insn
 
     def _get_architecture_name(self):
-        return self.arch.name
+        return self.arch['name']
 
     def _get_field_bitsize(self, field_name):
         for field in self.insn['encoding']:
@@ -120,7 +120,7 @@ class IsabelleVisitor(PTNodeVisitor):
             return self.var[label]
 
         if label == 'int':
-            return 'Expr::MakeBv'
+            return 'Expr::MakeBitVector'
 
         if label == 'field':
             return '__field'
@@ -150,7 +150,7 @@ class IsabelleVisitor(PTNodeVisitor):
                 return 'rInsn.AddAttribute'
 
             if meth == 'set_cond':
-                return 'rInsn.SetCondition'
+                return 'rInsn.SetTestedFlags'
 
             if meth == 'mnem':
                 meth = children[2]
@@ -161,14 +161,19 @@ class IsabelleVisitor(PTNodeVisitor):
                 if meth == 'add_suffix':
                     return 'rInsn.AddMnemonicSuffix'
 
-        if label == 'arm':
-            return 'arm::' + children[1]
+        if label == self._get_architecture_name():
+            meth = children[1]
+
+            if meth == 'RegisterFromName':
+                return 'm_CpuInfo.ConvertNameToIdentifier'
+
+            return '::'.join(children)
 
         return label
         # raise Exception('unhandled label: %s' % label)
 
     def visit_literal_binary(self, node, children):
-        return '%08x' % int(node.value[2:], 2)
+        return '0x%08x' % int(node.value[2:], 2)
 
     def visit_literal_decimal(self, node, children):
         return node.value
@@ -217,6 +222,16 @@ class IsabelleVisitor(PTNodeVisitor):
             expr_var_name = children[2][1:-1]
             self.var[expr_var_name] = code_var_name
             return 'auto %s = Expr::MakeVar("%s", VariableExpression::Alloc, %s)' % (code_var_name, expr_var_name, children[1])
+
+        if children[0] == 'Expr::MakeId':
+            return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
+
+        if children[0] == 'Expr::MakeVecId':
+            return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
+
+        if children[0] == 'rInsn.AddAttribute':
+            attr_flags = '%s_Attribute_%s' % (self._get_architecture_name().upper(), ''.join([x.capitalize() for x in children[1][1:-1].split(' ')]))
+            return '%s(%s)' % (children[0], attr_flags)
 
         if children[0] == '__field':
             field_name = children[1][1:-1]
