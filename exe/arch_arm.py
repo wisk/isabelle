@@ -190,7 +190,8 @@ class ArmArchConvertion(ArchConvertion):
         if not medusa_decoder:
             raise Exception('failed to compile AST for: %s' % insn['format'])
 
-        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(medusa_decoder + '\n')
+        set_insn_bitsize = 'rInsn.Length() = %d;\n' % (self._ARM_GetSize(insn) / 8)
+        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(set_insn_bitsize + medusa_decoder + '\n')
 
     def _ARM_GenerateInstructionComment(self, insn):
         return '// %s - %s - %s\n' % (insn['format'], insn['attribute'], insn['encoding'])
