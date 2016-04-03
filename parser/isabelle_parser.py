@@ -138,7 +138,7 @@ class IsabelleVisitor(PTNodeVisitor):
             return 'Expr::MakeVar'
 
         if label == 'flt':
-            return 'BitVector'
+            return '__flt'
 
         if label == 'insn':
             meth = children[1]
@@ -229,6 +229,11 @@ class IsabelleVisitor(PTNodeVisitor):
         if children[0] == 'Expr::MakeVecId':
             return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
 
+        if children[0] == 'Expr::MakeMem':
+            if len(children) == 3:
+                return '%s(%s, nullptr, %s)' % tuple(children)
+            return '%s(%s)' % tuple(children)
+
         if children[0] == 'rInsn.AddAttribute':
             attr_flags = '%s_Attribute_%s' % (self._get_architecture_name().upper(), ''.join([x.capitalize() for x in children[1][1:-1].split(' ')]))
             return '%s(%s)' % (children[0], attr_flags)
@@ -241,6 +246,9 @@ class IsabelleVisitor(PTNodeVisitor):
             if not extract_field:
                 raise Exception('failed to generate extract field: %s' % field_name)
             return '%s /* %s */' % (extract_field, field_name)
+
+        if children[0] == '__flt':
+            return 'Expr::MakeBitVector(BitVector(%sf))' % (children[1])
 
         return '%s(%s)' % (children[0], ', '.join(children[1:]))
 
