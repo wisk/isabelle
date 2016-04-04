@@ -45,7 +45,7 @@ class ArmArchConvertion(ArchConvertion):
         self.thumb_insns.sort(key=lambda insn: insn['encoding'])
 
     def _ARM_VerifyInstruction(self, insn):
-        insn_sz = self._ARM_GetSize(insn)
+        insn_sz = self._ARM_GetBitSize(insn)
         if insn_sz != 16 and insn_sz != 32:
             raise Exception('Invalid instruction "%s", encoding: %s, length: %d' % (insn['format'], insn['encoding'], insn_sz))
 
@@ -97,7 +97,7 @@ class ArmArchConvertion(ArchConvertion):
                 off += 1
         return res
 
-    def _ARM_GetSize(self, insn):
+    def _ARM_GetBitSize(self, insn):
         enc = insn['encoding']
         insn_sz = 0
         for e in enc:
@@ -190,8 +190,19 @@ class ArmArchConvertion(ArchConvertion):
         if not medusa_decoder:
             raise Exception('failed to compile AST for: %s' % insn['format'])
 
-        set_insn_bitsize = 'rInsn.Length() = %d;\n' % (self._ARM_GetSize(insn) / 8)
-        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(set_insn_bitsize + medusa_decoder + '\n')
+        set_insn_fmt  = 'rInsn.SetFormat("%s");\n' % insn['format']
+        set_insn_size = 'rInsn.Length() = %d;\n' % (self._ARM_GetBitSize(insn) / 8)
+        set_insn_opcd = 'rInsn.SetOpcode(ARM_Opcode_%s);\n' % (self._ARM_GetMnemonic(insn).capitalize())
+        sub_types = []
+        map_op_type = { 'jmp':'Instruction::JumpType', 'call':'Instruction::CallType' }
+        for ty in insn['attribute']:
+            if ty in map_op_type:
+                sub_types.append(map_op_type[ty])
+        set_insn_sbty = ''
+        if len(sub_types) != 0:
+            set_insn_sbty += 'rInsn.SubType() |= %s;\n' % ' | '.join(sub_types)
+
+        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(set_insn_fmt + set_insn_size + set_insn_opcd + set_insn_sbty + medusa_decoder + '\n')
 
     def _ARM_GenerateInstructionComment(self, insn):
         return '// %s - %s - %s\n' % (insn['format'], insn['attribute'], insn['encoding'])
@@ -253,7 +264,7 @@ class ArmArchConvertion(ArchConvertion):
             insns_list = sorted(insns_dict.items(), key=get_bit_count)
 
             for mask, insn_list in insns_list:
-                bit = self._ARM_GetSize(insn_list[0])
+                bit = self._ARM_GetBitSize(insn_list[0])
                 if len(insn_list) == 1:
                     value = arm._ARM_GetValue(insn_list[0])
                     res += arm._GenerateCondition('if', '(Opcode%d & %#010x) == %#010x' % (bit, mask, value), self._ARM_GenerateInstructionComment(insn_list[0]) + 'return %s(rBinStrm, Offset, Opcode%d, rInsn);' % (arm._ARM_GenerateMethodName(insn_list[0]), bit))

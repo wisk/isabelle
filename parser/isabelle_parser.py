@@ -119,6 +119,9 @@ class IsabelleVisitor(PTNodeVisitor):
         if label in self.var:
             return self.var[label]
 
+        if label == 'cpu_info':
+            return '&m_CpuInfo'
+
         if label == 'int':
             return 'Expr::MakeBitVector'
 
