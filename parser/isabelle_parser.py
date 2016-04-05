@@ -250,6 +250,12 @@ class IsabelleVisitor(PTNodeVisitor):
                 raise Exception('failed to generate extract field: %s' % field_name)
             return '%s /* %s */' % (extract_field, field_name)
 
+        if children[0] == 'm_CpuInfo.ConvertNameToIdentifier':
+            id_name = children[1][1:-1]
+            for registers in self.arch['register']:
+                if id_name in registers.values()[0]:
+                    return '%s_Reg_%s' % (self._get_architecture_name().upper(), id_name.capitalize())
+
         if children[0] == '__flt':
             return 'Expr::MakeBitVector(BitVector(%sf))' % (children[1])
 
