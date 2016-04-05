@@ -202,6 +202,12 @@ class ArmArchConvertion(ArchConvertion):
         if len(sub_types) != 0:
             set_insn_sbty += 'rInsn.SubType() |= %s;\n' % ' | '.join(sub_types)
 
+        ## TODO(wisk): handle could_{jmp,ret} attributes
+        if 'could_jmp' in insn['attribute']:
+            pass
+        if 'could_ret' in insn['attribute']:
+            pass
+
         return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(set_insn_fmt + set_insn_size + set_insn_opcd + set_insn_sbty + medusa_decoder + '\n')
 
     def _ARM_GenerateInstructionComment(self, insn):

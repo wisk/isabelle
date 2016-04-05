@@ -441,7 +441,7 @@ instruction:
       insn.mnem.set("adr");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 2));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + field("imm"));
 
     semantic: []
 
@@ -653,7 +653,7 @@ instruction:
     decoder: |
       insn.mnem.set("b");
       insn.add_attr("support it block");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 1));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):0));
 
     semantic: []
 
@@ -665,7 +665,7 @@ instruction:
     decoder: |
       insn.mnem.set("b");
       insn.add_attr("support it block");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 1));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):0));
 
     semantic: []
 
@@ -678,7 +678,7 @@ instruction:
       insn.mnem.set("b");
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 1));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):0));
 
     semantic: []
 
@@ -691,7 +691,7 @@ instruction:
       insn.mnem.set("b");
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 1));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):0));
 
     semantic: []
 
@@ -703,7 +703,7 @@ instruction:
     decoder: |
       insn.mnem.set("b");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 2));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + sx(field("imm"):00, 26, 32));
 
     semantic: []
 
@@ -889,7 +889,7 @@ instruction:
     decoder: |
       insn.mnem.set("bl");
       insn.add_attr("support it block");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 1));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):0));
 
     semantic: []
 
@@ -913,7 +913,7 @@ instruction:
     decoder: |
       insn.mnem.set("bl");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 2));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + sx(field("imm"):00, 26, 32));
 
     semantic: []
 
@@ -924,7 +924,7 @@ instruction:
     format: 'BLX <arm_branch_label>'
     decoder: |
       insn.mnem.set("blx");
-      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm") << 2));
+      insn.add_oprd(id(arm.RegisterFromName("pc")) + (field("imm"):00));
 
     semantic: []
 
@@ -1537,7 +1537,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
@@ -1576,7 +1576,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
@@ -2113,7 +2113,7 @@ instruction:
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
@@ -5984,7 +5984,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
@@ -6023,7 +6023,7 @@ instruction:
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
@@ -6429,7 +6429,7 @@ instruction:
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt2"))));
       var(32, "off");
-      off = int(32, field("imm") << 2);
+      off = int(32, field("imm"):00);
       if (field("U"))
         insn.add_oprd(mem(64, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
       else
