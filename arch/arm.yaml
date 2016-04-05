@@ -337,12 +337,13 @@ instruction:
     processor: ['ARMv4T', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: T1
     attribute: [ 'could_jmp' ]
-    format: 'ADD<c> <Rdm>, SP'
+    format: 'ADD<c> <Rdm>, SP, <Rdm>'
     decoder: |
       insn.mnem.set("add");
       insn.add_attr("support it block");
-      insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rdm"))));
+      insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("DM"):field("Rdm"))));
       insn.add_oprd(id(arm.RegisterFromName("sp")));
+      insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("DM"):field("Rdm"))));
 
     semantic: []
 
