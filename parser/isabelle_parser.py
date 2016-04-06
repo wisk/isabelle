@@ -8,7 +8,13 @@ def convert_decoder_to_medusa(arch, insn):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(insn['decoder'])
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, debug = False)) + '\nreturn true;'
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, debug = False)) + "\n"
+
+def convert_semantic_to_medusa(arch, insn):
+    isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
+    parser = ParserPEG(isabelle_grammar, 'code', debug = False)
+    parse_tree = parser.parse(insn['semantic'])
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, debug = False)) + "\n"
 
 def indent(s, lvl = 1):
     res = ''

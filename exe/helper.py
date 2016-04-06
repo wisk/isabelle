@@ -1,5 +1,5 @@
 def Indent(text, indent = 1):
-    if text == None:
+    if text == None or len(text) == 0:
         return ''
     res = ''
     strip = False

@@ -6,7 +6,7 @@ import sys
 import string
 
 sys.path.append('../parser')
-from isabelle_parser import convert_decoder_to_medusa
+from isabelle_parser import convert_decoder_to_medusa, convert_semantic_to_medusa
 
 class ArmArchConvertion(ArchConvertion):
     def __init__(self, arch):
@@ -190,6 +190,7 @@ class ArmArchConvertion(ArchConvertion):
         if not medusa_decoder:
             raise Exception('failed to compile AST for: %s' % insn['format'])
 
+        # decoder
         set_insn_fmt  = 'rInsn.SetFormat("%s");\n' % insn['format']
         set_insn_size = 'rInsn.Length() = %d;\n' % (self._ARM_GetBitSize(insn) / 8)
         set_insn_opcd = 'rInsn.SetOpcode(ARM_Opcode_%s);\n' % (self._ARM_GetMnemonic(insn).capitalize())
@@ -202,7 +203,15 @@ class ArmArchConvertion(ArchConvertion):
         if len(sub_types) != 0:
             set_insn_sbty += 'rInsn.SubType() |= %s;\n' % ' | '.join(sub_types)
 
-        return self._ARM_GenerateMethodPrototype(insn, False) + '\n' + self._GenerateBrace(set_insn_fmt + set_insn_size + set_insn_opcd + set_insn_sbty + medusa_decoder + '\n')
+        # semantic
+        set_insn_sem = convert_semantic_to_medusa(self.arch, insn)
+
+        # instruction method
+        meth_proto = self._ARM_GenerateMethodPrototype(insn, False)
+        meth_body_decoder = self._GenerateBrace('// decoder\n' + set_insn_fmt + set_insn_size + set_insn_opcd + set_insn_sbty + medusa_decoder)
+        meth_body_semantic = self._GenerateBrace('// semantic\n' + set_insn_sem)
+        meth_body = self._GenerateBrace(meth_body_decoder + meth_body_semantic + 'return true;\n')
+        return meth_proto + '\n' + meth_body
 
     def _ARM_GenerateInstructionComment(self, insn):
         return '// %s - %s - %s\n' % (insn['format'], insn['attribute'], insn['encoding'])
