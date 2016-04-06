@@ -125,6 +125,12 @@ class IsabelleVisitor(PTNodeVisitor):
         if label in self.var:
             return self.var[label]
 
+        if label == 'sx':
+            return 'SignExtend'
+
+        if label == 'zx':
+            return 'ZeroExtend'
+
         if label == 'cpu_info':
             return '&m_CpuInfo'
 
@@ -225,6 +231,9 @@ class IsabelleVisitor(PTNodeVisitor):
     def visit_function(self, node, children):
         if children[0] == 'not_implemented':
             return '// FIXME: not_implemented: %s' % children[1]
+
+        if children[0] == 'SignExtend':
+            return 'SignExtend<u%s, %s>(%s)' % (children[3], children[2], children[1])
 
         if children[0] == 'Expr::MakeVar':
             code_var_name = 'sp%sExpr' % children[2][1:-1].capitalize()

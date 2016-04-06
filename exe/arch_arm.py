@@ -203,6 +203,12 @@ class ArmArchConvertion(ArchConvertion):
         if len(sub_types) != 0:
             set_insn_sbty += 'rInsn.SubType() |= %s;\n' % ' | '.join(sub_types)
 
+        ## TODO(wisk): handle could_{jmp,ret} attributes
+        if 'could_jmp' in insn['attribute']:
+            pass
+        if 'could_ret' in insn['attribute']:
+            pass
+
         # semantic
         set_insn_sem = convert_semantic_to_medusa(self.arch, insn)
 
