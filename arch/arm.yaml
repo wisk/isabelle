@@ -1643,12 +1643,10 @@ instruction:
         insn.add_attr("write back");
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
-      var(32, "off");
-      off = int(32, field("imm"):00);
       if (field("U"))
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + field("imm"):00));
       else
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) - field("imm"):00));
 
     semantic: |
       not_implemented("");
@@ -1684,12 +1682,10 @@ instruction:
         insn.add_attr("write back");
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
-      var(32, "off");
-      off = int(32, field("imm"):00);
       if (field("U"))
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + field("imm"):00));
       else
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) - field("imm"):00));
 
     semantic: |
       not_implemented("");
@@ -6389,12 +6385,10 @@ instruction:
         insn.add_attr("write back");
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
-      var(32, "off");
-      off = int(32, field("imm"):00);
       if (field("U"))
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + field("imm"):00));
       else
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) - field("imm"):00));
 
     semantic: |
       not_implemented("");
@@ -6430,12 +6424,10 @@ instruction:
         insn.add_attr("write back");
       not_implemented("operand <coproc>");
       not_implemented("operand <CRd>");
-      var(32, "off");
-      off = int(32, field("imm"):00);
       if (field("U"))
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + field("imm"):00));
       else
-        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) + off));
+        insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>"))) - field("imm"):00));
 
     semantic: |
       not_implemented("");
