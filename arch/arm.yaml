@@ -75,7 +75,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -92,7 +92,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -109,7 +109,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -235,7 +235,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -252,7 +252,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -269,7 +269,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -377,7 +377,8 @@ instruction:
     decoder: |
       insn.mnem.set("add");
       insn.add_attr("support it block");
-      not_implemented("operand SP,<Rm>");
+      insn.add_oprd(id(arm.RegisterFromName("sp")));
+      insn.add_oprd(id(arm.RegisterFromValue(field("Rm"))));
 
     semantic: |
       not_implemented("");
@@ -395,7 +396,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromName("sp")));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -412,7 +413,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromName("sp")));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -549,7 +550,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -566,7 +567,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -583,7 +584,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -877,7 +878,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -894,7 +895,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -911,7 +912,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -1038,7 +1039,7 @@ instruction:
     decoder: |
       insn.mnem.set("bx");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
-      not_implemented("operand Rm");
+      insn.add_oprd(id(arm.RegisterFromValue("Rm")));
 
     semantic: |
       not_implemented("");
@@ -1267,7 +1268,7 @@ instruction:
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -1281,7 +1282,7 @@ instruction:
       insn.mnem.set("cmn");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -1295,7 +1296,7 @@ instruction:
       insn.mnem.set("cmn");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -1396,7 +1397,7 @@ instruction:
       insn.mnem.set("cmp");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -1410,7 +1411,7 @@ instruction:
       insn.mnem.set("cmp");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -1552,7 +1553,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -1569,7 +1570,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -1586,7 +1587,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -1910,7 +1911,8 @@ instruction:
       insn.mnem.set("ldr");
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [SP{,#<disp>}]");
+      insn.add_oprd(mem(32,
+        id(arm.RegisterFromName("sp")) + int(32, field("imm"):00)));
 
     semantic: |
       not_implemented("");
@@ -2034,9 +2036,10 @@ instruction:
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("[<Rn>");
-      not_implemented("operand <Rm>{,LSL");
-      not_implemented("operand #<imm>}]");
+      insn.add_oprd(mem(32,
+        id(arm.RegisterFromValue(field("Rn"))) +
+        id(arm.RegisterFromValue(field("Rm"))) <<
+        int(32, field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -2052,7 +2055,11 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      if (field("U"))
+        insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -2173,9 +2180,9 @@ instruction:
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("[<Rn>");
-      not_implemented("operand <Rm>{,LSL");
-      not_implemented("operand #<imm>}]");
+      insn.add_oprd(mem(8,
+        id(arm.RegisterFromValue(field("Rn"))) +
+          arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -2191,7 +2198,14 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      if (field("U"))
+        insn.add_oprd(mem(8,
+          id(arm.RegisterFromValue("Rn")) +
+          arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue("Rm")), field("imm"))));
+      else
+        insn.add_oprd(mem(8,
+          id(arm.RegisterFromValue("Rn")) -
+          arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue("Rm")), field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -2237,7 +2251,9 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(8,
+        id(arm.RegisterFromValue("Rn")) +
+        arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue("Rm")), field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -3003,6 +3019,8 @@ instruction:
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
       insn.add_oprd(mem(32, id(arm.RegisterFromValue("GPR32", field("<Rn>")))));
       not_implemented("operand {,#<disp>}");
+      if (field("imm"))
+        insn.add_oprd(int(32, field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3018,7 +3036,9 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(16,
+        id(arm.RegisterFromValue("Rn")) +
+        arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue("Rm")), field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -3027,13 +3047,13 @@ instruction:
     processor: ['ARMv4T', 'ARMv5T*', 'ARMv6*', 'ARMv7']
     mode: T1
     attribute: [ 'could_jmp' ]
-    format: 'LSLS <Rd>, <Rm>, #<imm5>'
+    format: 'LSLS <Rd>, <Rm>, #<imm>'
     decoder: |
       insn.mnem.set("lsl");
       insn.mnem.add_suffix("s");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rm"))));
-      not_implemented("operand #<imm5>");
+      insn.add_oprd(int(32, field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3051,7 +3071,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rm"))));
-      not_implemented("operand #<imm5>");
+      insn.add_oprd(int(32, field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3068,7 +3088,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rm"))));
-      not_implemented("operand #<imm5>");
+      insn.add_oprd(int(32, field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3901,7 +3921,7 @@ instruction:
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3917,7 +3937,7 @@ instruction:
         insn.mnem.add_suffix("s");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -3933,7 +3953,7 @@ instruction:
         insn.mnem.add_suffix("s");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -4004,7 +4024,7 @@ instruction:
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -4070,7 +4090,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -4087,7 +4107,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -4104,7 +4124,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -4240,7 +4260,10 @@ instruction:
     format: 'PLI [<Rn>,+/-<Rm>{,<shift>}]'
     decoder: |
       insn.mnem.set("pli");
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -5013,7 +5036,7 @@ instruction:
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -5030,7 +5053,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -5047,7 +5070,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -5081,7 +5104,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -5098,7 +5121,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -5254,7 +5277,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -5271,7 +5294,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -5288,7 +5311,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -6680,7 +6703,10 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -6791,7 +6817,10 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -6837,7 +6866,10 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -7223,7 +7255,10 @@ instruction:
       if (field("W"))
         insn.add_attr("write back");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rt"))));
-      not_implemented("operand [<Rn>,+/-<Rm>{,<shift>}]");
+      insn.add_oprd(mem(32,
+          arm.DecodeImmShiftWithSource(
+            id(arm.RegisterFromValue(field("Rn"))) + id(arm.RegisterFromValue(field("Rm"))),
+            field("imm"))));
 
     semantic: |
       not_implemented("");
@@ -7335,7 +7370,7 @@ instruction:
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7352,7 +7387,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7369,7 +7404,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -7451,7 +7486,7 @@ instruction:
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromName("sp")));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7468,7 +7503,7 @@ instruction:
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
       insn.add_oprd(id(arm.RegisterFromName("sp")));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7772,7 +7807,7 @@ instruction:
       insn.mnem.set("teq");
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7786,7 +7821,7 @@ instruction:
       insn.mnem.set("teq");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7800,7 +7835,7 @@ instruction:
       insn.mnem.set("teq");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -7857,7 +7892,7 @@ instruction:
       insn.add_attr("support it block");
       insn.mnem.add_suffix(".w");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7871,7 +7906,7 @@ instruction:
       insn.mnem.set("tst");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, field("Rm"), field("type"), field("imm")));
+      insn.add_oprd(arm.DecodeImmShiftWithSource(cpu_info, id(arm.RegisterFromValue(field("Rm"))), field("type"), field("imm")));
 
     semantic: |
       not_implemented("");
@@ -7885,7 +7920,7 @@ instruction:
       insn.mnem.set("tst");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
-      insn.add_oprd(arm.DecodeRegShiftWithSources(cpu_info, field("Rm"), field("type"), field("Rs")));
+      insn.add_oprd(arm.DecodeRegShiftWithSources(id(arm.RegisterFromValue(field("Rm"))), field("type"), id(arm.RegisterFromValue(field("Rs")))));
 
     semantic: |
       not_implemented("");
@@ -8558,7 +8593,7 @@ instruction:
       insn.mnem.set("usat");
       insn.add_attr("support it block");
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      not_implemented("operand #<imm5>");
+      insn.add_oprd(int(32, field("imm")));
       not_implemented("operand <Rn>{,<shift>}");
 
     semantic: |
@@ -8573,7 +8608,7 @@ instruction:
       insn.mnem.set("usat");
       insn.set_cond(arm.ConditionFromValue(field("cond")));
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rd"))));
-      not_implemented("operand #<imm5>");
+      insn.add_oprd(int(32, field("imm")));
       not_implemented("operand <Rn>{,<shift>}");
 
     semantic: |
