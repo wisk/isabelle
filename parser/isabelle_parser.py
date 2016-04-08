@@ -167,6 +167,9 @@ class IsabelleVisitor(PTNodeVisitor):
             if meth == 'set_cond':
                 return 'rInsn.SetTestedFlags'
 
+            if meth == 'sem':
+                return 'rInsn.AddPostSemantic'
+
             if meth == 'mnem':
                 meth = children[2]
 
@@ -226,7 +229,11 @@ class IsabelleVisitor(PTNodeVisitor):
 
     def visit_assignment(self, node, children):
         assert(len(children) == 2)
-        return '%s = %s' % tuple(children)
+        return 'Expr::MakeAssign(%s, %s)' % tuple(children)
+
+    def visit_bind_assign(self, node, children):
+        assert(len(children) == 2)
+        return '%s(%s)' % tuple(children)
 
     def visit_function(self, node, children):
         if children[0] == 'not_implemented':
@@ -251,6 +258,9 @@ class IsabelleVisitor(PTNodeVisitor):
             if len(children) == 3:
                 return '%s(%s, nullptr, %s)' % tuple(children)
             return '%s(%s)' % tuple(children)
+
+        if children[0] == 'Expr::MakeAssign':
+            return '%s(%s, %s)' % (children[0], children[1], children[2])
 
         if children[0] == 'rInsn.AddAttribute':
             attr_flags = '%s_Attribute_%s' % (self._get_architecture_name().upper(), ''.join([x.capitalize() for x in children[1][1:-1].split(' ')]))

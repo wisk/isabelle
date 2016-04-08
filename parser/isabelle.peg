@@ -72,7 +72,8 @@ expression <- expr_5 ((op_6) expr_5)*;
 predicat <- expression; // TODO(wisk): handle condition
 
 // assignment
-assignment <- label '=' expression;
+assignment <- (function / label) '=' expression;
+bind_assign <- (label) '<-' (assignment / expression);
 
 // function
 function <- label '(' expression (',' expression)* ')';
@@ -86,7 +87,7 @@ case_when <- "case" '(' expression ')' '{' when_block+ '}';
 
 // statment
 conditional_statment   <- case_when / if_else;
-unconditional_statment <- (function / assignment) ';';
+unconditional_statment <- (assignment / bind_assign / function) ';';
 statment <- (conditional_statment / unconditional_statment);
 block <- '{' statment+ '}' / statment;
 
