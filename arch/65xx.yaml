@@ -1,0 +1,1792 @@
+  - encoding: ['00']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'brk b'
+    decoder: |
+      insn.mnem.set("brk");
+
+  - encoding: ['01']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora (d,X)'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['02']
+    processor: ['65c816']
+    attribute: []
+    format: 'cop b'
+    decoder: |
+      insn.mnem.set("cop");
+
+  - encoding: ['03']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora d,S'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['04']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'tsb d'
+    decoder: |
+      insn.mnem.set("tsb");
+
+  - encoding: ['05']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora d'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['06']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'asl d'
+    decoder: |
+      insn.mnem.set("asl");
+
+  - encoding: ['07']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora [d]'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['08']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'php'
+    decoder: |
+      insn.mnem.set("php");
+
+  - encoding: ['09']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora #'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['0a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'asl a'
+    decoder: |
+      insn.mnem.set("asl");
+
+  - encoding: ['0b']
+    processor: ['65c816']
+    attribute: []
+    format: 'phd'
+    decoder: |
+      insn.mnem.set("phd");
+
+  - encoding: ['0c']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'tsb a'
+    decoder: |
+      insn.mnem.set("tsb");
+
+  - encoding: ['0d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora a'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['0e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'asl a'
+    decoder: |
+      insn.mnem.set("asl");
+
+  - encoding: ['0f']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora al'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['10']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bpl r'
+    decoder: |
+      insn.mnem.set("bpl");
+
+  - encoding: ['11']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora (d), Y'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['12']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'ora (d)'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['13']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora (d,S), Y'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['14']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'trb d'
+    decoder: |
+      insn.mnem.set("trb");
+
+  - encoding: ['15']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora d,X'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['16']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'asl d,X'
+    decoder: |
+      insn.mnem.set("asl");
+
+  - encoding: ['17']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora [d],Y'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['18']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'clc'
+    decoder: |
+      insn.mnem.set("clc");
+
+  - encoding: ['19']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora a,Y'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['1a']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'inc a'
+    decoder: |
+      insn.mnem.set("inc");
+
+  - encoding: ['1b']
+    processor: ['65c816']
+    attribute: []
+    format: 'tcs'
+    decoder: |
+      insn.mnem.set("tcs");
+
+  - encoding: ['1c']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'trb a'
+    decoder: |
+      insn.mnem.set("trb");
+
+  - encoding: ['1d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ora a,X'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['1e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'asl a,X'
+    decoder: |
+      insn.mnem.set("asl");
+
+  - encoding: ['1f']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora al,X'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['20']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'jsr a'
+    decoder: |
+      insn.mnem.set("jsr");
+
+  - encoding: ['21']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and (d,X)'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['22']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora (d)'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['23']
+    processor: ['65c816']
+    attribute: []
+    format: 'ora (d,S),Y'
+    decoder: |
+      insn.mnem.set("ora");
+
+  - encoding: ['24']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'bit d'
+    decoder: |
+      insn.mnem.set("bit");
+
+  - encoding: ['25']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and d'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['26']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'rol d'
+    decoder: |
+      insn.mnem.set("rol");
+
+  - encoding: ['27']
+    processor: ['65c816']
+    attribute: []
+    format: 'and [d]'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['28']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'plp'
+    decoder: |
+      insn.mnem.set("plp");
+
+  - encoding: ['29']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and #'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['2a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'rol a'
+    decoder: |
+      insn.mnem.set("rol");
+
+  - encoding: ['2b']
+    processor: ['65c816']
+    attribute: []
+    format: 'pld'
+    decoder: |
+      insn.mnem.set("pld");
+
+  - encoding: ['2c']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'bit a'
+    decoder: |
+      insn.mnem.set("bit");
+
+  - encoding: ['2d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and a'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['2e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'rol a'
+    decoder: |
+      insn.mnem.set("rol");
+
+  - encoding: ['2f']
+    processor: ['65c816']
+    attribute: []
+    format: 'and al'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['30']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bmi r'
+    decoder: |
+      insn.mnem.set("bmi");
+
+  - encoding: ['31']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and (d),Y'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['32']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'and (d)'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['33']
+    processor: ['65c816']
+    attribute: []
+    format: 'and (d,S),Y'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['34']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'bit d,X'
+    decoder: |
+      insn.mnem.set("bit");
+
+  - encoding: ['35']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and d,X'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['36']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'rol d,X'
+    decoder: |
+      insn.mnem.set("rol");
+
+  - encoding: ['37']
+    processor: ['65c816']
+    attribute: []
+    format: 'and [d],Y'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['38']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sec'
+    decoder: |
+      insn.mnem.set("sec");
+
+  - encoding: ['39']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and a,Y'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['3a']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'dec a'
+    decoder: |
+      insn.mnem.set("dec");
+
+  - encoding: ['3b']
+    processor: ['65c816']
+    attribute: []
+    format: 'tsc'
+    decoder: |
+      insn.mnem.set("tsc");
+
+  - encoding: ['3c']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'bit a,Y'
+    decoder: |
+      insn.mnem.set("bit");
+
+  - encoding: ['3d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'and a,X'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['3e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'rol a,X'
+    decoder: |
+      insn.mnem.set("rol");
+
+  - encoding: ['3f']
+    processor: ['65c816']
+    attribute: []
+    format: 'and al,X'
+    decoder: |
+      insn.mnem.set("and");
+
+  - encoding: ['40']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['return']
+    format: 'rti'
+    decoder: |
+      insn.mnem.set("rti");
+
+  - encoding: ['41']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor (d,X)'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['42']
+    processor: ['65c816']
+    attribute: []
+    format: 'wdm'
+    decoder: |
+      insn.mnem.set("wdm");
+
+  - encoding: ['43']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor d,S'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['44']
+    processor: ['65c816']
+    attribute: []
+    format: 'mvp s,d'
+    decoder: |
+      insn.mnem.set("mvp");
+
+  - encoding: ['45']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor d'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['46']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lsr d'
+    decoder: |
+      insn.mnem.set("lsr");
+
+  - encoding: ['47']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor [d]'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['48']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'pha'
+    decoder: |
+      insn.mnem.set("pha");
+
+  - encoding: ['49']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor #'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['4a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lsr a'
+    decoder: |
+      insn.mnem.set("lsr");
+
+  - encoding: ['4b']
+    processor: ['65c816']
+    attribute: []
+    format: 'phk'
+    decoder: |
+      insn.mnem.set("phk");
+
+  - encoding: ['4c']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump']
+    format: 'jmp a'
+    decoder: |
+      insn.mnem.set("jmp");
+
+  - encoding: ['4d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor a'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['4e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lsr a'
+    decoder: |
+      insn.mnem.set("lsr");
+
+  - encoding: ['4f']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor al'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['50']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bvc r'
+    decoder: |
+      insn.mnem.set("bvc");
+
+  - encoding: ['51']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor (d,X)'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['52']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'eor (d)'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['53']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor (d,S),Y'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['54']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'mvn s,d'
+    decoder: |
+      insn.mnem.set("mvn");
+
+  - encoding: ['55']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor d,X'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['56']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lsr d,X'
+    decoder: |
+      insn.mnem.set("lsr");
+
+  - encoding: ['57']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor [d],Y'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['58']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'cli'
+    decoder: |
+      insn.mnem.set("cli");
+
+  - encoding: ['59']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor a,Y'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['5a']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'ply'
+    decoder: |
+      insn.mnem.set("ply");
+
+  - encoding: ['5b']
+    processor: ['65c816']
+    attribute: []
+    format: 'tcd'
+    decoder: |
+      insn.mnem.set("tcd");
+
+  - encoding: ['5c']
+    processor: ['65c816']
+    attribute: ['jump']
+    format: 'jmp al'
+    decoder: |
+      insn.mnem.set("jmp");
+
+  - encoding: ['5d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'eor a,X'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['5e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lsr a,X'
+    decoder: |
+      insn.mnem.set("lsr");
+
+  - encoding: ['5f']
+    processor: ['65c816']
+    attribute: []
+    format: 'eor al,X'
+    decoder: |
+      insn.mnem.set("eor");
+
+  - encoding: ['60']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['return']
+    format: 'rts'
+    decoder: |
+      insn.mnem.set("rts");
+
+  - encoding: ['61']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc (d,X)'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['62']
+    processor: ['65c816']
+    attribute: []
+    format: 'per rl'
+    decoder: |
+      insn.mnem.set("per");
+
+  - encoding: ['63']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc d,S'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['64']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'stz d'
+    decoder: |
+      insn.mnem.set("stz");
+
+  - encoding: ['65']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc d'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['66']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ror d'
+    decoder: |
+      insn.mnem.set("ror");
+
+  - encoding: ['67']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc [d]'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['68']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'pla'
+    decoder: |
+      insn.mnem.set("pla");
+
+  - encoding: ['69']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc #'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['6a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ror a'
+    decoder: |
+      insn.mnem.set("ror");
+
+  - encoding: ['6b']
+    processor: ['65c816']
+    attribute: ['return']
+    format: 'rtl'
+    decoder: |
+      insn.mnem.set("rtl");
+
+  - encoding: ['6c']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump']
+    format: 'jmp (a)'
+    decoder: |
+      insn.mnem.set("jmp");
+
+  - encoding: ['6d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc a'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['6e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ror a'
+    decoder: |
+      insn.mnem.set("ror");
+
+  - encoding: ['6f']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc al'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['70']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bvs r'
+    decoder: |
+      insn.mnem.set("bvs");
+
+  - encoding: ['71']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc (d),Y'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['72']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'adc (d)'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['73']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc (s,S),Y'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['74']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'stz d,X'
+    decoder: |
+      insn.mnem.set("stz");
+
+  - encoding: ['75']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc d,X'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['76']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ror d,X'
+    decoder: |
+      insn.mnem.set("ror");
+
+  - encoding: ['77']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc [d],Y'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['78']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sei'
+    decoder: |
+      insn.mnem.set("sei");
+
+  - encoding: ['79']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc a,Y'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['7a']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'ply'
+    decoder: |
+      insn.mnem.set("ply");
+
+  - encoding: ['7b']
+    processor: ['65c816']
+    attribute: []
+    format: 'tdc'
+    decoder: |
+      insn.mnem.set("tdc");
+
+  - encoding: ['7c']
+    processor: ['65c02', '65c816']
+    attribute: ['jump']
+    format: 'jmp (a,X)'
+    decoder: |
+      insn.mnem.set("jmp");
+
+  - encoding: ['7d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'adc a,X'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['7e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ror a,X'
+    decoder: |
+      insn.mnem.set("ror");
+
+  - encoding: ['7f']
+    processor: ['65c816']
+    attribute: []
+    format: 'adc al,X'
+    decoder: |
+      insn.mnem.set("adc");
+
+  - encoding: ['80']
+    processor: ['65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bra r'
+    decoder: |
+      insn.mnem.set("bra");
+
+  - encoding: ['81']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta (d,X)'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['82']
+    processor: ['65c816']
+    attribute: ['jump', 'conditional']
+    format: 'brl rl'
+    decoder: |
+      insn.mnem.set("brl");
+
+  - encoding: ['83']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta d,S'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['84']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sty d'
+    decoder: |
+      insn.mnem.set("sty");
+
+  - encoding: ['85']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta d'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['86']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'stx d'
+    decoder: |
+      insn.mnem.set("stx");
+
+  - encoding: ['87']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta [d]'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['88']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dey'
+    decoder: |
+      insn.mnem.set("dey");
+
+  - encoding: ['89']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'bit #'
+    decoder: |
+      insn.mnem.set("bit");
+
+  - encoding: ['8a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'txa'
+    decoder: |
+      insn.mnem.set("txa");
+
+  - encoding: ['8b']
+    processor: ['65c816']
+    attribute: []
+    format: 'phb'
+    decoder: |
+      insn.mnem.set("phb");
+
+  - encoding: ['8c']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sty a'
+    decoder: |
+      insn.mnem.set("sty");
+
+  - encoding: ['8d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta a'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['8e']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'stx a'
+    decoder: |
+      insn.mnem.set("stx");
+
+  - encoding: ['8f']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta al'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['90']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bcc r'
+    decoder: |
+      insn.mnem.set("bcc");
+
+  - encoding: ['91']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta (d),Y'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['92']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'sta (d)'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['93']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta (d,S),Y'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['94']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sty d,X'
+    decoder: |
+      insn.mnem.set("sty");
+
+  - encoding: ['95']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta d,X'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['96']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'stx d,Y'
+    decoder: |
+      insn.mnem.set("stx");
+
+  - encoding: ['97']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta [d],Y'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['98']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'tya'
+    decoder: |
+      insn.mnem.set("tya");
+
+  - encoding: ['99']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta a,Y'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['9a']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'txs'
+    decoder: |
+      insn.mnem.set("txs");
+
+  - encoding: ['9b']
+    processor: ['65c816']
+    attribute: []
+    format: 'txy'
+    decoder: |
+      insn.mnem.set("txy");
+
+  - encoding: ['9c']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'stz a'
+    decoder: |
+      insn.mnem.set("stz");
+
+  - encoding: ['9d']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sta a,X'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['9e']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'stz a,X'
+    decoder: |
+      insn.mnem.set("stz");
+
+  - encoding: ['9f']
+    processor: ['65c816']
+    attribute: []
+    format: 'sta al,X'
+    decoder: |
+      insn.mnem.set("sta");
+
+  - encoding: ['a0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldy #'
+    decoder: |
+      insn.mnem.set("ldy");
+
+  - encoding: ['a1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda (d,X)'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['a2']
+    processor: ['65c816']
+    attribute: []
+    format: 'ldx #'
+    decoder: |
+      insn.mnem.set("ldx");
+
+  - encoding: ['a3']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda d,S'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['a4']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldy d'
+    decoder: |
+      insn.mnem.set("ldy");
+
+  - encoding: ['a5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda d'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['a6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldx d'
+    decoder: |
+      insn.mnem.set("ldx");
+
+  - encoding: ['a7']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda [d]'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['a8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'tay'
+    decoder: |
+      insn.mnem.set("tay");
+
+  - encoding: ['a9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda #'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['aa']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'tax'
+    decoder: |
+      insn.mnem.set("tax");
+
+  - encoding: ['ab']
+    processor: ['65c816']
+    attribute: []
+    format: 'plb'
+    decoder: |
+      insn.mnem.set("plb");
+
+  - encoding: ['ac']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldy a'
+    decoder: |
+      insn.mnem.set("ldy");
+
+  - encoding: ['ad']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda a'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['ae']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldx a'
+    decoder: |
+      insn.mnem.set("ldx");
+
+  - encoding: ['af']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda al'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bcs r'
+    decoder: |
+      insn.mnem.set("bcs");
+
+  - encoding: ['b1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda (d),Y'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b2']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'lda (d)'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b3']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda (d,S),Y'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b4']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldy d,X'
+    decoder: |
+      insn.mnem.set("ldy");
+
+  - encoding: ['b5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda d,X'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldx d,Y'
+    decoder: |
+      insn.mnem.set("ldx");
+
+  - encoding: ['b7']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda [d],Y'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['b8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'clv'
+    decoder: |
+      insn.mnem.set("clv");
+
+  - encoding: ['b9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda a,Y'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['ba']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'tsx'
+    decoder: |
+      insn.mnem.set("tsx");
+
+  - encoding: ['bb']
+    processor: ['65c816']
+    attribute: []
+    format: 'tyx'
+    decoder: |
+      insn.mnem.set("tyx");
+
+  - encoding: ['bc']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldy a,X'
+    decoder: |
+      insn.mnem.set("ldy");
+
+  - encoding: ['bd']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'lda a,X'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['be']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'ldx a,Y'
+    decoder: |
+      insn.mnem.set("ldx");
+
+  - encoding: ['bf']
+    processor: ['65c816']
+    attribute: []
+    format: 'lda al,X'
+    decoder: |
+      insn.mnem.set("lda");
+
+  - encoding: ['c0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpy #'
+    decoder: |
+      insn.mnem.set("cpy");
+
+  - encoding: ['c1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp (d,X)'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['c2']
+    processor: ['65c816']
+    attribute: []
+    format: 'rep #'
+    decoder: |
+      insn.mnem.set("rep");
+
+  - encoding: ['c3']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp d,S'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['c4']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpy d'
+    decoder: |
+      insn.mnem.set("cpy");
+
+  - encoding: ['c5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp d'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['c6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dec d'
+    decoder: |
+      insn.mnem.set("dec");
+
+  - encoding: ['c7']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp [d]'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['c8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'iny'
+    decoder: |
+      insn.mnem.set("iny");
+
+  - encoding: ['c9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp #'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['ca']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dex'
+    decoder: |
+      insn.mnem.set("dex");
+
+  - encoding: ['cb']
+    processor: ['65c816']
+    attribute: []
+    format: 'wai'
+    decoder: |
+      insn.mnem.set("wai");
+
+  - encoding: ['cc']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpy a'
+    decoder: |
+      insn.mnem.set("cpy");
+
+  - encoding: ['cd']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp a'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['ce']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dec a'
+    decoder: |
+      insn.mnem.set("dec");
+
+  - encoding: ['cf']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp al'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'bne r'
+    decoder: |
+      insn.mnem.set("bne");
+
+  - encoding: ['d1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp (d),Y'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d2']
+    processor: ['65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp (d)'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d3']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp (d,S),Y'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d4']
+    processor: ['65c816']
+    attribute: []
+    format: 'pei d'
+    decoder: |
+      insn.mnem.set("pei");
+
+  - encoding: ['d5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp d,X'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dec d,X'
+    decoder: |
+      insn.mnem.set("dec");
+
+  - encoding: ['d7']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp [d],Y'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['d8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'cld'
+    decoder: |
+      insn.mnem.set("cld");
+
+  - encoding: ['d9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp a,Y'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['da']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'phx'
+    decoder: |
+      insn.mnem.set("phx");
+
+  - encoding: ['db']
+    processor: ['65c816']
+    attribute: []
+    format: 'stp'
+    decoder: |
+      insn.mnem.set("stp");
+
+  - encoding: ['dc']
+    processor: ['65c816']
+    attribute: []
+    format: 'jml (a)'
+    decoder: |
+      insn.mnem.set("jml");
+
+  - encoding: ['dd']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cmp a,X'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['de']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'dec a,X'
+    decoder: |
+      insn.mnem.set("dec");
+
+  - encoding: ['df']
+    processor: ['65c816']
+    attribute: ['compare']
+    format: 'cmp al,X'
+    decoder: |
+      insn.mnem.set("cmp");
+
+  - encoding: ['e0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpx #'
+    decoder: |
+      insn.mnem.set("cpx");
+
+  - encoding: ['e1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc (d,X)'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['e2']
+    processor: ['65c816']
+    attribute: []
+    format: 'sep #'
+    decoder: |
+      insn.mnem.set("sep");
+
+  - encoding: ['e3']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc d,S'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['e4']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpx d'
+    decoder: |
+      insn.mnem.set("cpx");
+
+  - encoding: ['e5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc d'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['e6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'inc d'
+    decoder: |
+      insn.mnem.set("inc");
+
+  - encoding: ['e7']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc [d]'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['e8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'inx'
+    decoder: |
+      insn.mnem.set("inx");
+
+  - encoding: ['e9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc #'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['ea']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'nop'
+    decoder: |
+      insn.mnem.set("nop");
+
+  - encoding: ['eb']
+    processor: ['65c816']
+    attribute: []
+    format: 'xba'
+    decoder: |
+      insn.mnem.set("xba");
+
+  - encoding: ['ec']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['compare']
+    format: 'cpx a'
+    decoder: |
+      insn.mnem.set("cpx");
+
+  - encoding: ['ed']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc a'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['ee']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'inc a'
+    decoder: |
+      insn.mnem.set("inc");
+
+  - encoding: ['ef']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc al'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f0']
+    processor: ['6502', '65c02', '65c816']
+    attribute: ['jump', 'conditional']
+    format: 'beq r'
+    decoder: |
+      insn.mnem.set("beq");
+
+  - encoding: ['f1']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc (d),Y'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f2']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'sbc (d)'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f3']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc (d,S),Y'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f4']
+    processor: ['65c816']
+    attribute: []
+    format: 'pea a'
+    decoder: |
+      insn.mnem.set("pea");
+
+  - encoding: ['f5']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc d,X'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f6']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'inc d,X'
+    decoder: |
+      insn.mnem.set("inc");
+
+  - encoding: ['f7']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc [d],Y'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['f8']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sed'
+    decoder: |
+      insn.mnem.set("sed");
+
+  - encoding: ['f9']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc a,Y'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['fa']
+    processor: ['65c02', '65c816']
+    attribute: []
+    format: 'plx'
+    decoder: |
+      insn.mnem.set("plx");
+
+  - encoding: ['fb']
+    processor: ['65c816']
+    attribute: []
+    format: 'xce'
+    decoder: |
+      insn.mnem.set("xce");
+
+  - encoding: ['fc']
+    processor: ['65c816']
+    attribute: []
+    format: 'jsr (a,X)'
+    decoder: |
+      insn.mnem.set("jsr");
+
+  - encoding: ['fd']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'sbc a,X'
+    decoder: |
+      insn.mnem.set("sbc");
+
+  - encoding: ['fe']
+    processor: ['6502', '65c02', '65c816']
+    attribute: []
+    format: 'inc a,X'
+    decoder: |
+      insn.mnem.set("inc");
+
+  - encoding: ['ff']
+    processor: ['65c816']
+    attribute: []
+    format: 'sbc al,X'
+    decoder: |
+      insn.mnem.set("sbc");
+
