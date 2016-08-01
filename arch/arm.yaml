@@ -2,16 +2,35 @@ name: arm
 
 mode: [ 'ARM', 'Thumb' ]
 
-condition: { 'eq':0, 'ne':1, 'cs':2, 'hs':2, 'cc':3, 'lo':3, 'mi':4, 'pl':5, 'vs':6, 'vc':7, 'hi':8, 'ls':9, 'ge':10, 'lt':11, 'gt':11, 'le':12 }
+# condition: { 'eq':0, 'ne':1, 'cs':2, 'hs':2, 'cc':3, 'lo':3, 'mi':4, 'pl':5, 'vs':6, 'vc':7, 'hi':8, 'ls':9, 'ge':10, 'lt':11, 'gt':11, 'le':12 }
 
 register:
-  - flag : { 'nf':0, 'cf':1, 'vf':2, 'zf':3 }
+  - flag : { 'nf':0, 'cf':1, 'vf':2, 'zf':3, 'tf':4 }
   - GPR32: { 'r0':0, 'r1':1, 'r2':2, 'r3':3, 'r4':4, 'r5':5, 'r6':6, 'r7':7, 'r8':8, 'r9':9, 'r10':10, 'r11':11, 'fp':11, 'r12':12, 'ip':12, 'r13':13, 'sp':13, 'r14':14, 'lr':14, 'r15':15, 'pc':15 }
-  # - FPR32: {}
-  # - SIMDR64: {}  # TODO(wisk):
-  # - SIMDR128: {} # TODO(wisk):
+#   - FPR32: {}
+#   - SIMDR64: {}  # TODO(wisk):
+#   - SIMDR128: {} # TODO(wisk):
 
 attribute: [ 'support it block', 'write back', ]
+
+semantic:
+  adc3: &adc3 |
+    insn.sem <- alloc_var(bsz(insn.oprd0), "res");
+    insn.sem <- res = insn.oprd1 + insn.oprd2 + bcast(bsz(insn.oprd0), id(arm.RegisterFromName("cf")));
+    if (field("S"))
+      add3_update_flags(res, insn.oprd1, insn.oprd2);
+    insn.sem <- insn.oprd0 = res;
+    insn.sem <- free_var("res");
+
+function:
+  - name: add3_update_flags
+    parameter: [ insn, res ]
+    code: |
+      if (field("S"))
+      {
+        insn.sem <- id(arm.RegisterFromName("zf")) = ite(res == int(bsz(insn.oprd0), 0x0), int(1, 1), int(1, 0));
+        insn.sem <- id(arm.RegisterFromName("nf")) = bcast(1, ((res >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1))));
+      }
 
 instruction:
   - encoding: ['1', '1', '1', '1', '0', 'imm#1', '0', '1', '0', '1', '0', 'S#1', 'Rn#4', '0', 'imm#3', 'Rd#4', 'imm#8']
@@ -28,8 +47,7 @@ instruction:
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
       insn.add_oprd(int(32, field("imm")));
 
-    semantic: |
-      not_implemented("");
+    semantic: *adc3
 
   - encoding: ['cond#4', '0', '0', '1', '0', '1', '0', '1', 'S#1', 'Rn#4', 'Rd#4', 'imm#12']
     processor: ['ARMv4*', 'ARMv5T*', 'ARMv6*', 'ARMv7']
@@ -45,8 +63,7 @@ instruction:
       insn.add_oprd(id(arm.RegisterFromValue("GPR32", field("Rn"))));
       insn.add_oprd(int(32, arm.ArmExpandImm(field("imm"))));
 
-    semantic: |
-      not_implemented("");
+    semantic: *adc3
 
   - encoding: ['0', '1', '0', '0', '0', '0', '0', '1', '0', '1', 'Rm#3', 'Rdn#3']
     processor: ['ARMv4T', 'ARMv5T*', 'ARMv6*', 'ARMv7']

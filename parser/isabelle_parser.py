@@ -123,13 +123,22 @@ class IsabelleVisitor(PTNodeVisitor):
         label = children[0]
 
         if label in self.var:
-            return self.var[label]
+            return 'Expr::MakeVar("%s", VariableExpression::Use)' % label
+
+        if label == 'ite':
+            return 'Expr::MakeTernary'
 
         if label == 'sx':
             return 'SignExtend'
 
         if label == 'zx':
             return 'ZeroExtend'
+
+        if label == 'bsz':
+            return '__bit_size'
+
+        if label == 'bcast':
+            return '__bit_cast'
 
         if label == 'cpu_info':
             return '&m_CpuInfo'
@@ -139,6 +148,12 @@ class IsabelleVisitor(PTNodeVisitor):
 
         if label == 'field':
             return '__field'
+
+        if label == 'alloc_var':
+            return '__alloc_var'
+
+        if label == 'free_var':
+            return '__free_var'
 
         if label == 'id':
             return 'Expr::MakeId'
@@ -157,6 +172,11 @@ class IsabelleVisitor(PTNodeVisitor):
 
         if label == 'insn':
             meth = children[1]
+
+            if meth.startswith('oprd'):
+                oprd_no = int(meth[len('oprd'):])
+
+                return 'rInsn.GetOperand(%d)' % oprd_no
 
             if meth == 'add_oprd':
                 return 'rInsn.AddOperand'
@@ -219,6 +239,8 @@ class IsabelleVisitor(PTNodeVisitor):
         return ' '.join(children)
     def visit_expr_6(self, node, children):
         return ' '.join(children)
+    def visit_expr_7(self, node, children):
+        return ' '.join(children)
 
     def visit_expression(self, node, children):
         assert(len(children) != 0)
@@ -241,12 +263,6 @@ class IsabelleVisitor(PTNodeVisitor):
 
         if children[0] == 'SignExtend':
             return 'SignExtend<u%s, %s>(%s)' % (children[3], children[2], children[1])
-
-        if children[0] == 'Expr::MakeVar':
-            code_var_name = 'sp%sExpr' % children[2][1:-1].capitalize()
-            expr_var_name = children[2][1:-1]
-            self.var[expr_var_name] = code_var_name
-            return 'auto %s = Expr::MakeVar("%s", VariableExpression::Alloc, %s)' % (code_var_name, expr_var_name, children[1])
 
         if children[0] == 'Expr::MakeId':
             return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
@@ -274,6 +290,25 @@ class IsabelleVisitor(PTNodeVisitor):
             if not extract_field:
                 raise Exception('failed to generate extract field: %s' % field_name)
             return '%s /* %s */' % (extract_field, field_name)
+
+        if children[0] == '__alloc_var':
+            var_name = children[2][1:-1]
+            var_bsz = children[1]
+            self.var[var_name] = var_bsz
+            return 'Expr::MakeVar("%s", VariableExpression::Alloc, %s)' % (var_name, var_bsz)
+
+        if children[0] == '__free_var':
+            var_name = children[1][1:-1]
+            var_bsz = self.var[var_name]
+            del self.var[var_name]
+            return 'Expr::MakeVar("%s", VariableExpression::Free)' % (var_name)
+            # return 'Expr::MakeVar("%s", VariableExpression::Free, %s)' % (var_name, var_bsz)
+
+        if children[0] == '__bit_size':
+            return '%s->GetBitSize()' % children[1]
+
+        if children[0] == '__bit_cast':
+            return 'Expr::MakeBinOp(OperationExpression::OpBcast, %s, %s)' % (children[1], children[2])
 
         if children[0] == 'm_CpuInfo.ConvertNameToIdentifier':
             id_name = children[1][1:-1]
@@ -322,7 +357,10 @@ class IsabelleVisitor(PTNodeVisitor):
 
 
 def main(debug = False):
-    pass
+    isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
+    parser = ParserPEG(isabelle_grammar, 'code', debug = False)
+    # parse_tree = parser.parse("...")
+    # print parse_tree
 
 if __name__ == '__main__':
     main(debug = False)
