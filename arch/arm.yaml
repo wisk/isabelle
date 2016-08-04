@@ -18,19 +18,16 @@ semantic:
     insn.sem <- alloc_var(bsz(insn.oprd0), "res");
     insn.sem <- res = insn.oprd1 + insn.oprd2 + bcast(bsz(insn.oprd0), id(arm.RegisterFromName("cf")));
     if (field("S"))
-      add3_update_flags(res, insn.oprd1, insn.oprd2);
+      add3_update_flags(insn, res);
     insn.sem <- insn.oprd0 = res;
     insn.sem <- free_var("res");
 
 function:
   - name: add3_update_flags
-    parameter: [ insn, res ]
+    parameter: [ 'res' ]
     code: |
-      if (field("S"))
-      {
-        insn.sem <- id(arm.RegisterFromName("zf")) = ite(res == int(bsz(insn.oprd0), 0x0), int(1, 1), int(1, 0));
-        insn.sem <- id(arm.RegisterFromName("nf")) = bcast(1, ((res >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1))));
-      }
+      insn.sem <- id(arm.RegisterFromName("zf")) = ite(res == int(bsz(insn.oprd0), 0x0), int(1, 1), int(1, 0));
+      insn.sem <- id(arm.RegisterFromName("nf")) = bcast(int(1, 1), ((res >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1))));
 
 instruction:
   - encoding: ['1', '1', '1', '1', '0', 'imm#1', '0', '1', '0', '1', '0', 'S#1', 'Rn#4', '0', 'imm#3', 'Rd#4', 'imm#8']

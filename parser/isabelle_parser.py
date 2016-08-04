@@ -4,17 +4,23 @@
 import os
 from arpeggio.peg import ParserPEG, PTNodeVisitor, visit_parse_tree
 
+def convert_function_to_medusa(arch, func, parm):
+    isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
+    parser = ParserPEG(isabelle_grammar, 'code', debug = False)
+    parse_tree = parser.parse(func)
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, None, parm, debug = False)) + "\n"
+
 def convert_decoder_to_medusa(arch, insn):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(insn['decoder'])
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, debug = False)) + "\n"
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, debug = False)) + "\n"
 
 def convert_semantic_to_medusa(arch, insn):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(insn['semantic'])
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, debug = False)) + "\n"
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, debug = False)) + "\n"
 
 def indent(s, lvl = 1):
     res = ''
@@ -25,9 +31,12 @@ def indent(s, lvl = 1):
     return res
 
 class IsabelleVisitor(PTNodeVisitor):
-    def __init__(self, arch, insn, *args, **kwargs):
+    def __init__(self, arch, insn, var, *args, **kwargs):
         super(IsabelleVisitor, self).__init__(*args, **kwargs)
-        self.var = {}
+        if not var:
+            self.var = []
+        else:
+            self.var = var
         self.arch = arch
         self.insn = insn
 
@@ -171,6 +180,10 @@ class IsabelleVisitor(PTNodeVisitor):
             return '__flt'
 
         if label == 'insn':
+
+            if len(children) == 1:
+                return 'rInsn'
+
             meth = children[1]
 
             if meth.startswith('oprd'):
@@ -198,6 +211,8 @@ class IsabelleVisitor(PTNodeVisitor):
 
                 if meth == 'add_suffix':
                     return 'rInsn.AddMnemonicSuffix'
+
+            raise Exception('unknown method for insn: %s' % children)
 
         if label == self._get_architecture_name():
             meth = children[1]
@@ -294,13 +309,12 @@ class IsabelleVisitor(PTNodeVisitor):
         if children[0] == '__alloc_var':
             var_name = children[2][1:-1]
             var_bsz = children[1]
-            self.var[var_name] = var_bsz
+            self.var.append(var_name)
             return 'Expr::MakeVar("%s", VariableExpression::Alloc, %s)' % (var_name, var_bsz)
 
         if children[0] == '__free_var':
             var_name = children[1][1:-1]
-            var_bsz = self.var[var_name]
-            del self.var[var_name]
+            self.var.remove(var_name)
             return 'Expr::MakeVar("%s", VariableExpression::Free)' % (var_name)
             # return 'Expr::MakeVar("%s", VariableExpression::Free, %s)' % (var_name, var_bsz)
 

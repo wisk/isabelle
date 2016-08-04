@@ -19,6 +19,7 @@ def main():
         conv = conv_class(d)
 
         hdr = conv.GenerateHeader()
+        fct = conv.GenerateFunction()
         src = conv.GenerateSource()
         enm = conv.GenerateOpcodeEnum()
         mns = conv.GenerateOpcodeString()
@@ -37,6 +38,7 @@ def main():
         arch_cpp.write('#include "%s_architecture.hpp"\n' % arch_name)
         arch_cpp.write('#include "%s_helper.hpp"\n' % arch_name)
         arch_cpp.write(mns)
+        arch_cpp.write(fct)
         arch_cpp.write(src)
         arch_cpp.write(opc)
 
