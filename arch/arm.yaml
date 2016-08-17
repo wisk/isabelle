@@ -24,10 +24,12 @@ semantic:
 
 function:
   - name: add3_update_flags
-    parameter: [ 'res' ]
+    variable: [ 'res' ]
     code: |
       insn.sem <- id(arm.RegisterFromName("zf")) = ite(res == int(bsz(insn.oprd0), 0x0), int(1, 1), int(1, 0));
       insn.sem <- id(arm.RegisterFromName("nf")) = bcast(int(1, 1), ((res >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1))));
+      insn.sem <- id(arm.RegisterFromName("cf")) = bcast(int(1, 1), (insn.oprd1 & insn.oprd2) >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1));
+      insn.sem <- id(arm.RegisterFromName("of")) = bcast(int(1, 1), ((insn.oprd1 ^ res) & (~(insn.oprd1 ^ insn.oprd2))) >> int(bsz(insn.oprd0), bsz(insn.oprd0) - 1));
 
 instruction:
   - encoding: ['1', '1', '1', '1', '0', 'imm#1', '0', '1', '0', '1', '0', 'S#1', 'Rn#4', '0', 'imm#3', 'Rd#4', 'imm#8']

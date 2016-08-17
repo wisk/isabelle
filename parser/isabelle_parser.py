@@ -4,23 +4,26 @@
 import os
 from arpeggio.peg import ParserPEG, PTNodeVisitor, visit_parse_tree
 
-def convert_function_to_medusa(arch, func, parm):
+def convert_function_to_medusa(arch, func, var):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(func)
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, None, parm, debug = False)) + "\n"
+    prm = { 'cpu_info':'rCpuInfo', }
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, None, var, prm, debug = False)) + "\n"
 
 def convert_decoder_to_medusa(arch, insn):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(insn['decoder'])
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, debug = False)) + "\n"
+    prm = { 'cpu_info':'m_CpuInfo', }
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, prm, debug = False)) + "\n"
 
 def convert_semantic_to_medusa(arch, insn):
     isabelle_grammar = open(os.path.join(os.path.dirname(__file__), 'isabelle.peg'), 'r').read()
     parser = ParserPEG(isabelle_grammar, 'code', debug = False)
     parse_tree = parser.parse(insn['semantic'])
-    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, debug = False)) + "\n"
+    prm = { 'cpu_info':'m_CpuInfo', }
+    return visit_parse_tree(parse_tree, IsabelleVisitor(arch, insn, None, prm, debug = False)) + "\n"
 
 def indent(s, lvl = 1):
     res = ''
@@ -31,8 +34,9 @@ def indent(s, lvl = 1):
     return res
 
 class IsabelleVisitor(PTNodeVisitor):
-    def __init__(self, arch, insn, var, *args, **kwargs):
+    def __init__(self, arch, insn, var, prm, *args, **kwargs):
         super(IsabelleVisitor, self).__init__(*args, **kwargs)
+        self.prm = prm
         if not var:
             self.var = []
         else:
@@ -150,7 +154,7 @@ class IsabelleVisitor(PTNodeVisitor):
             return '__bit_cast'
 
         if label == 'cpu_info':
-            return '&m_CpuInfo'
+            return '&%s' % self.prm[label]
 
         if label == 'int':
             return 'Expr::MakeBitVector'
@@ -218,7 +222,7 @@ class IsabelleVisitor(PTNodeVisitor):
             meth = children[1]
 
             if meth == 'RegisterFromName':
-                return 'm_CpuInfo.ConvertNameToIdentifier'
+                return '%s.ConvertNameToIdentifier' % self.prm['cpu_info']
 
             return '::'.join(children)
 
@@ -243,19 +247,33 @@ class IsabelleVisitor(PTNodeVisitor):
     def visit_expr_0(self, node, children):
         return ''.join(children)
     def visit_expr_1(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_2(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_3(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_4(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_5(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_6(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
     def visit_expr_7(self, node, children):
-        return ' '.join(children)
+        if len(children) > 1:
+            return '(%s)' % ' '.join(children)
+        return children[0]
 
     def visit_expression(self, node, children):
         assert(len(children) != 0)
@@ -280,10 +298,10 @@ class IsabelleVisitor(PTNodeVisitor):
             return 'SignExtend<u%s, %s>(%s)' % (children[3], children[2], children[1])
 
         if children[0] == 'Expr::MakeId':
-            return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
+            return '%s(%s, &%s)' % (children[0], children[1], self.prm['cpu_info'])
 
         if children[0] == 'Expr::MakeVecId':
-            return '%s(%s, &m_CpuInfo)' % (children[0], children[1])
+            return '%s(%s, &%s)' % (children[0], children[1], self.prm['cpu_info'])
 
         if children[0] == 'Expr::MakeMem':
             if len(children) == 3:
@@ -324,7 +342,7 @@ class IsabelleVisitor(PTNodeVisitor):
         if children[0] == '__bit_cast':
             return 'Expr::MakeBinOp(OperationExpression::OpBcast, %s, %s)' % (children[1], children[2])
 
-        if children[0] == 'm_CpuInfo.ConvertNameToIdentifier':
+        if children[0] == '%s.ConvertNameToIdentifier' % self.prm['cpu_info']:
             id_name = children[1][1:-1]
             for registers in self.arch['register']:
                 if id_name in registers.values()[0]:

@@ -61,12 +61,12 @@ class ArchConvertion:
 
         for f in self.arch['function']:
             f_name = f['name']
-            f_parm = f['parameter']
+            f_var  = f['variable']
             f_code = f['code']
 
-            res += '/* parameter: %s */\n' % f_parm
-            res += 'void %s(Instruction& rInsn, CpuInformation& m_CpuInfo)\n' % f_name # FIXME(wisk): m_CpuInfo doesn't respect the coding convention
-            res += self._GenerateBrace(convert_function_to_medusa(self.arch, f_code, f_parm))
+            res += '/* variable: %s */\n' % f_var
+            res += 'static void %s(Instruction& rInsn, CpuInformation& rCpuInfo)\n' % f_name
+            res += self._GenerateBrace(convert_function_to_medusa(self.arch, f_code, f_var))
             res += '\n'
 
         return res
